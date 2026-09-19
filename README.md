@@ -6,7 +6,7 @@ Website portofolio dan layanan Ferry Kurniawan untuk **Web Development**, **IT C
 
 ## Fitur
 
-- Landing page dengan empat slide hero: perkenalan, Web Development, Video Editing, dan IT Consulting. Rotasi otomatis bisa dijeda dan mengikuti preferensi reduced motion.
+- Landing page dengan empat slide hero: perkenalan, Web Development, Video Editing, dan IT Consulting. Teks berganti otomatis setiap 3 detik tanpa tombol play/pause, memakai satu foto yang sama, dan mengikuti preferensi reduced motion.
 - Halaman khusus untuk setiap layanan utama, dengan lingkup kerja, FAQ, karya terkait, dan brief sesuai layanan.
 - Feed karya terbaru bergaya postingan sosial di beranda, berdasarkan proyek `published` + `featured`.
 - Katalog proyek dan halaman detail untuk lima kategori: Web Development, IT Consulting, Video Editing, Graphic Design, dan AI Consulting.

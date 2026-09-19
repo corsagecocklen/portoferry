@@ -20,7 +20,7 @@ Prinsip penulisan mengikuti [No AI Slop](https://github.com/petergyang/no-ai-slo
 
 | Area | Sumber konten | Kapan tampil |
 | --- | --- | --- |
-| Hero | `src/components/hero-carousel.tsx` | Empat slide dengan pergantian otomatis setiap 8 detik, kontrol manual, serta tombol jeda. |
+| Hero | `src/components/hero-carousel.tsx` | Empat slide dengan pergantian otomatis setiap 3 detik dan satu foto yang sama. Nomor slide dan panah tetap tersedia, tanpa tombol play/pause. |
 | Halaman layanan | `src/lib/services.ts` | Web Development, Video Editing, dan IT Consulting masing-masing punya halaman, FAQ, serta brief yang sudah memilih layanan terkait. |
 | Feed “karya terbaru” di beranda | `projects` | Hanya proyek `published` + `featured` dari Web Development, IT Consulting, atau Video Editing; maksimal tiga sesuai urutan. |
 | Katalog `/proyek` | `projects` | Semua proyek `published`, termasuk Graphic Design dan AI Consulting. |
@@ -29,7 +29,7 @@ Prinsip penulisan mengikuti [No AI Slop](https://github.com/petergyang/no-ai-slo
 
 Pengunjung tidak melihat proyek draft. Status `featured` bukan pengganti `published`: proyek harus dipublish lebih dahulu agar dapat tampil.
 
-Hero berhenti berganti saat diarahkan pointer, berada di luar layar, atau tab browser disembunyikan. Fokus keyboard dan pemilihan slide manual menghentikan rotasi sampai pengunjung menekan tombol mulai. Preferensi reduced motion mematikan rotasi awal; navigasi manual tetap tersedia. Teks hero dan halaman layanan saat ini dikelola di kode, bukan panel admin.
+Hero berhenti sementara saat diarahkan pointer, mendapat fokus keyboard, berada di luar layar, atau tab browser disembunyikan. Rotasi berlanjut otomatis setelah kondisi itu berakhir; pemilihan slide lewat klik atau sentuhan tidak membutuhkan tombol mulai. Preferensi reduced motion mematikan rotasi; navigasi manual tetap tersedia. Foto `ferry-landing.webp` tidak berganti antar slide. Teks hero dan halaman layanan saat ini dikelola di kode, bukan panel admin.
 
 ## Live admin versus demo
 

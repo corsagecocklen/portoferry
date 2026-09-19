@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowDown, ArrowLeft, ArrowRight, ArrowUpRight, Braces, Pause, Play, Settings2 } from "lucide-react";
+import { ArrowDown, ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
@@ -14,7 +14,6 @@ const slides = [
     description: "Saya bikin website, bantu urusan IT, dan edit video. Kamu fokus ke bisnis. Bagian digitalnya, kita kerjakan bareng.",
     cta: "Ceritakan idemu",
     href: "#kontak",
-    coordinate: "IDE → EKSEKUSI → TAYANG",
   },
   {
     label: "Web Development",
@@ -24,7 +23,6 @@ const slides = [
     description: "Kenalkan usahamu lewat website yang ringan dibuka di HP. Landing page, company profile, atau web app, kita pilih sesuai kebutuhan.",
     cta: "Lihat layanan web",
     href: "/layanan/web-development",
-    coordinate: "BRIEF → DESAIN → WEBSITE",
   },
   {
     label: "Video Editing",
@@ -34,7 +32,6 @@ const slides = [
     description: "Reels, video promosi, atau dokumentasi. Saya rapikan potongan, suara, dan warna supaya pesannya sampai tanpa bertele-tele.",
     cta: "Lihat layanan video",
     href: "/layanan/video-editing",
-    coordinate: "FOOTAGE → EDIT → TAYANG",
   },
   {
     label: "IT Consulting",
@@ -44,11 +41,10 @@ const slides = [
     description: "Pilih sistem, rapikan alur kerja, atau cari sumber gangguan. Kita cek kebutuhanmu dulu, lalu tentukan langkah yang masuk akal.",
     cta: "Bahas urusan IT",
     href: "/layanan/it-consulting",
-    coordinate: "CEK → PETAKAN → BERESKAN",
   },
 ] as const;
 
-const interval = 8_000;
+const interval = 3_000;
 
 function subscribeToMotion(callback: () => void) {
   const query = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -63,18 +59,14 @@ function subscribeToVisibility(callback: () => void) {
 
 export function HeroCarousel({ available }: { available: boolean }) {
   const [active, setActive] = useState(0);
-  const [rotation, setRotation] = useState<"auto" | "playing" | "paused">("auto");
   const [hovered, setHovered] = useState(false);
+  const [keyboardFocused, setKeyboardFocused] = useState(false);
   const [inView, setInView] = useState(true);
   const section = useRef<HTMLElement>(null);
-  const rotationButton = useRef<HTMLButtonElement>(null);
-  const pointerOnRotation = useRef(false);
   const reducedMotion = useSyncExternalStore(subscribeToMotion, () => window.matchMedia("(prefers-reduced-motion: reduce)").matches, () => true);
   const pageVisible = useSyncExternalStore(subscribeToVisibility, () => document.visibilityState !== "hidden", () => false);
-  const rotationRequested = rotation === "playing" || (rotation === "auto" && !reducedMotion);
-  const rotating = rotationRequested && !hovered && inView && pageVisible;
+  const rotating = !reducedMotion && !hovered && !keyboardFocused && inView && pageVisible;
   const slide = slides[active];
-  const formalPortrait = active === 3;
 
   useEffect(() => {
     const observer = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), { threshold: 0.15 });
@@ -84,12 +76,11 @@ export function HeroCarousel({ available }: { available: boolean }) {
 
   useEffect(() => {
     if (!rotating) return;
-    const timer = window.setInterval(() => setActive(index => (index + 1) % slides.length), interval);
-    return () => window.clearInterval(timer);
-  }, [rotating]);
+    const timer = window.setTimeout(() => setActive(index => (index + 1) % slides.length), interval);
+    return () => window.clearTimeout(timer);
+  }, [active, rotating]);
 
   function selectSlide(index: number) {
-    setRotation("paused");
     setActive((index + slides.length) % slides.length);
   }
 
@@ -103,15 +94,19 @@ export function HeroCarousel({ available }: { available: boolean }) {
       data-rotating={rotating}
       onPointerEnter={event => { if (event.pointerType !== "touch") setHovered(true); }}
       onPointerLeave={() => setHovered(false)}
-      onFocusCapture={event => {
-        // A pointer click must toggle once, rather than pause on focus and restart on click.
-        if (event.target === rotationButton.current && pointerOnRotation.current) return;
-        setRotation("paused");
+      onPointerDownCapture={() => setKeyboardFocused(false)}
+      onKeyDownCapture={() => setKeyboardFocused(true)}
+      onFocusCapture={event => setKeyboardFocused(event.target.matches(":focus-visible"))}
+      onBlurCapture={event => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setKeyboardFocused(false);
       }}
     >
+      <div className="hero-visual">
+        <Image src="/images/ferry-landing.webp" alt="Ferry Kurniawan" fill sizes="100vw" className="hero-portrait" priority />
+      </div>
       <div className="container hero-grid">
         <div className="hero-copy">
-          <div className="hero-slide" id="hero-slide" aria-live={rotationRequested ? "off" : "polite"} aria-atomic="true">
+          <div className="hero-slide" id="hero-slide" aria-live={rotating ? "off" : "polite"} aria-atomic="true">
             <div key={active} className="hero-slide-content" role="group" aria-roledescription="slide" aria-label={`${active + 1} dari ${slides.length}: ${slide.label}`}>
               <div className="hero-intro"><span className="intro-line" />{slide.intro}<span className="wave" aria-hidden="true">✳</span></div>
               <h1>{slide.title}<br /><em>{slide.accent}</em></h1>
@@ -131,32 +126,11 @@ export function HeroCarousel({ available }: { available: boolean }) {
                 </button>
               ))}
             </div>
-            <div className="hero-playback-controls">
+            <div className="hero-navigation-controls">
               <button type="button" onClick={() => selectSlide(active - 1)} aria-label="Slide sebelumnya" aria-controls="hero-slide"><ArrowLeft size={15} /></button>
               <button type="button" onClick={() => selectSlide(active + 1)} aria-label="Slide berikutnya" aria-controls="hero-slide"><ArrowRight size={15} /></button>
-              <button
-                ref={rotationButton}
-                type="button"
-                onPointerDown={() => { pointerOnRotation.current = true; }}
-                onPointerUp={() => { pointerOnRotation.current = false; }}
-                onPointerCancel={() => { pointerOnRotation.current = false; }}
-                onClick={() => setRotation(rotationRequested ? "paused" : "playing")}
-                aria-label={rotationRequested ? "Jeda pergantian otomatis" : "Mulai pergantian otomatis"}
-                aria-controls="hero-slide"
-              >{rotationRequested ? <Pause size={13} /> : <Play size={13} />}</button>
             </div>
           </div>
-        </div>
-        <div className={`hero-visual${formalPortrait ? " hero-visual-formal" : ""}`}>
-          <div className="hero-halo" /><div className="orbit orbit-one" /><div className="orbit orbit-two" />
-          <span className="hero-coordinate mono">{slide.coordinate}</span><span className="hero-spark" aria-hidden="true">✳</span>
-          <div className="portrait-frame">
-            <Image src="/images/ferry-hero.webp" alt="Ferry Kurniawan, web developer dan video editor" fill sizes="(max-width: 760px) 95vw, 550px" className={`hero-portrait${formalPortrait ? " portrait-hidden" : ""}`} aria-hidden={formalPortrait} priority />
-            <Image src="/images/ferry-formal-cutout.webp" alt="Ferry Kurniawan untuk konsultasi IT" fill sizes="(max-width: 760px) 95vw, 550px" className={`hero-portrait hero-portrait-formal${formalPortrait ? "" : " portrait-hidden"}`} aria-hidden={!formalPortrait} />
-          </div>
-          <div className="floating-tag tag-code">{formalPortrait ? <Settings2 size={19} /> : <Braces size={19} />}<span>{formalPortrait ? "Sistem sesuai kebutuhan." : "Built with purpose."}</span><span className="tag-dot" /></div>
-          <div className="floating-tag tag-video"><span className="tag-play"><Play size={13} fill="currentColor" /></span><div>{formalPortrait ? "Dari masalah ke langkah kerja." : "Make every frame count."}<span className="tag-timeline"><i /><i /><i /><i /><i /><i /></span></div></div>
-          <div className="hero-signature">Ferry Kurniawan<span>YOUR DIGITAL PARTNER</span></div><span className="hero-bracket bracket-top" /><span className="hero-bracket bracket-bottom" />
         </div>
       </div>
       <div className="container hero-bottom"><span className="mono">INDEPENDENT MIND. HANDS-ON WORK.</span><a href="#layanan">Kenalan lebih jauh<ArrowDown size={15} /></a><span className="mono hero-year">PORTOFERRY © 2026</span></div>
