@@ -1,0 +1,5 @@
+{
+  "setup": { "script": "bash .hoplite/setup.sh" },
+  "run": { "script": "bash .hoplite/run.sh" },
+  "ports": { "preview": 3000 }
+}

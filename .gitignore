@@ -1,0 +1,15 @@
+node_modules/
+.next/
+out/
+.env*
+!.env.example
+*.tsbuildinfo
+.DS_Store
+.vercel/
+coverage/
+test-results/
+playwright-report/
+.hoplite/*
+!.hoplite/settings.json
+!.hoplite/setup.sh
+!.hoplite/run.sh
