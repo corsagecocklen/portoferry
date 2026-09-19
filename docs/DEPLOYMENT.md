@@ -10,17 +10,29 @@ Panduan ini memasang aplikasi ke Supabase, menghubungkannya ke Vercel, lalu meng
 - **Update konten:** perubahan proyek/pengaturan dari admin masuk ke Supabase dan tampil setelah revalidasi, tanpa menunggu push kode atau deploy Vercel.
 - **Update kode/desain:** push ke production branch membuat production deployment; branch lain membuat preview deployment melalui integrasi Git Vercel.
 
+## Pengamanan dan batas verifikasi
+
+- `/admin` memverifikasi user ke Supabase Auth dan memeriksa allowlist `admin_users`. Login saja tidak cukup untuk mendapat akses admin.
+- Aksi simpan/hapus memeriksa izin di server; RLS database dan Storage membatasi perubahan ke admin. Jangan mematikan RLS untuk mengatasi error konfigurasi.
+- `/admin/demo` ditutup dengan 404 saat dua env Supabase terisi. Data demo lokal tidak dimigrasikan otomatis ke database live.
+- Login aplikasi saat ini memakai email/password, belum memiliki alur MFA/2FA, CAPTCHA, atau pembatas percobaan login khusus aplikasi. Proteksi bawaan Supabase tidak menggantikan semua lapisan tersebut.
+- Pengujian lokal tidak membuktikan konfigurasi Auth/RLS produksi benar. Jalankan checklist live di bawah sebelum menganggap aktivasi selesai.
+- Kontak situs dan bucket gambar bersifat publik. Status draft menyembunyikan metadata proyek, bukan file gambar yang URL-nya sudah diketahui. Jangan upload materi rahasia.
+
+Gunakan password admin yang unik dan kuat. Aktifkan 2FA pada akun pengelola GitHub, Vercel, dan Supabase; ini terpisah dari login `/admin`. Tinjau [Supabase Production Checklist](https://supabase.com/docs/guides/deployment/going-into-prod) dan Security Advisor di project nyata.
+
 ## 1. Siapkan repository di GitHub
 
-Gunakan repository `corsagecocklen/portoferry`. Pilih branch yang berisi aplikasi ini sebagai production branch; jangan mengasumsikan namanya `main`.
+Gunakan repository `corsagecocklen/portoferry`. Branch aplikasi saat panduan ini diperbarui adalah `hoplite/poseidonia-20bbdcf9`; jangan mengasumsikan namanya `main`.
 
 1. Pastikan file aplikasi dan migration ikut berada di repository.
 2. Di Vercel pilih **Add New → Project → Import Git Repository**.
 3. Pilih `corsagecocklen/portoferry`.
-4. Atur **Settings → Git → Production Branch** ke branch aplikasi yang dipilih. Nama branch harus sama dengan yang tersedia di GitHub.
-5. Biarkan Vercel mendeteksi Next.js. Root directory adalah root repository dan build memakai script `pnpm build` dari `package.json`.
+4. Di **Settings → Environments → Production**, atur **Branch Tracking / Production Branch** ke `hoplite/poseidonia-20bbdcf9`, lalu simpan. Jika pengaturan ini baru tersedia setelah deploy pertama, periksa dan sesuaikan sebelum memakai domain produksi.
+5. Biarkan Vercel mendeteksi Next.js dan pnpm dari lockfile. Root directory adalah root repository (`./`), build memakai `pnpm build`, dan Output Directory mengikuti default Next.js. Jangan gunakan `.hoplite/run.sh` sebagai build command Vercel.
+6. Gunakan Node.js **24.x**, sesuai runtime verifikasi lokal saat ini dan salah satu [versi yang didukung Vercel](https://vercel.com/docs/functions/runtimes/node-js/node-js-versions). Periksa versi pnpm pada build log; repository menetapkan `pnpm@10.26.0` dan Vercel mendukung [pnpm 10 untuk project baru](https://vercel.com/changelog/automatic-pnpm-v10-support).
 
-Setiap push ke branch yang dipilih sebagai production akan memicu deploy production. Push ke branch lain membuat preview. Rujukan: [Deploying Git Repositories with Vercel](https://vercel.com/docs/git) dan [Deploying Next.js](https://nextjs.org/docs/app/getting-started/deploying).
+Setiap push ke branch yang dipilih sebagai production akan memicu deploy production. Push ke branch lain membuat preview. Jika env atau production branch baru diatur setelah deploy awal, buat deployment Production baru/redeploy dengan konfigurasi yang benar. Rujukan: [Deploying Git Repositories with Vercel](https://vercel.com/docs/git), [Production Branch](https://vercel.com/kb/guide/can-i-use-a-non-default-branch-for-production), dan [Deploying Next.js](https://nextjs.org/docs/app/getting-started/deploying).
 
 ### Pilih plan sesuai penggunaan
 
@@ -35,13 +47,13 @@ Portoferry menawarkan layanan bisnis. Dokumen Vercel menyatakan Hobby dibatasi u
 3. Jalankan seluruh isi [`supabase/migrations/001_portfolio.sql`](../supabase/migrations/001_portfolio.sql). Migration dirancang idempoten.
 4. Pastikan tabel `projects`, `site_settings`, `admin_users`, fungsi `public.is_admin()`, policy RLS, dan bucket `project-images` berhasil dibuat.
 
-Migration membuat satu baris `site_settings`; tabel `projects` tetap kosong sampai proyek nyata dibuat. Tidak ada seed klien fiktif yang perlu dipublikasikan.
+Migration membuat satu baris `site_settings`; tabel `projects` tetap kosong sampai proyek nyata dibuat. Katalog kosong setelah tersambung bukan error dan data `/admin/demo` tidak ikut berpindah. Tidak ada seed klien fiktif yang perlu dipublikasikan. Deploy Vercel tidak menjalankan migration SQL secara otomatis.
 
 ### Buat user admin pertama
 
 1. Di Supabase buka **Authentication → Users → Add user**.
 2. Buat akun email/password manual, gunakan password unik dan kuat, lalu aktifkan **Auto Confirm User** untuk akun tersebut.
-3. Nonaktifkan **Allow new users to sign up** di konfigurasi Auth. Panel ini hanya membutuhkan akun yang dibuat pemilik; jangan membuka pendaftaran publik.
+3. Nonaktifkan **Allow new users to sign up** di konfigurasi Auth (**Sign In / Providers**); biarkan anonymous sign-ins nonaktif. Panel ini hanya membutuhkan akun yang dibuat pemilik; jangan membuka pendaftaran publik.
 4. Salin UUID user dari daftar Auth.
 5. Di **SQL Editor**, masukkan UUID itu ke allowlist:
 
@@ -59,7 +71,7 @@ Rujukan resmi: [Supabase password Auth](https://supabase.com/docs/guides/auth/pa
 
 ### Ambil env yang benar
 
-Salin URL project dan **publishable key** dari Supabase ke env Vercel berikut. Migration dan aplikasi tidak memerlukan service-role key.
+Ambil **Project URL** dari dialog **Connect**, serta **publishable key** (`sb_publishable_...`) dari **Connect** atau **Settings → API Keys**. Project URL bukan connection string Postgres. Salin ke env Vercel berikut; jangan gunakan secret key (`sb_secret_...`) atau legacy service-role key. Lihat [Supabase API keys](https://supabase.com/docs/guides/getting-started/api-keys).
 
 ```text
 NEXT_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
@@ -67,7 +79,7 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<publishable-key>
 NEXT_PUBLIC_SITE_URL=https://portoferry.my.id
 ```
 
-Di Vercel buka **Project → Settings → Environment Variables**. Isi setidaknya **Production**; isi Preview juga jika preview harus membaca project Supabase yang sama. Untuk lokal, simpan nilai di `.env.local` yang di-ignore Git. Next.js memuat env dari file `.env*`; lihat [Environment Variables Next.js](https://nextjs.org/docs/app/guides/environment-variables).
+Di Vercel buka **Project → Settings → Environment Variables**. Isi **Production**. Untuk Preview yang memerlukan backend, gunakan project Supabase terpisah agar pengujian tidak mengubah data produksi. Env Preview yang kosong sengaja memakai mode demo. Setelah menambah/mengganti env, deploy ulang karena nilai `NEXT_PUBLIC_` masuk saat build. Untuk lokal, simpan nilai di `.env.local` yang di-ignore Git. Next.js memuat env dari file `.env*`; lihat [Environment Variables Next.js](https://nextjs.org/docs/app/guides/environment-variables).
 
 ## 3. Hubungkan domain Dewabiz ke Vercel
 
@@ -119,7 +131,10 @@ Lakukan checklist ini menggunakan project dan akun nyata:
 - [ ] `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`, dan `pnpm test:e2e` dijalankan.
 - [ ] Situs publik terbuka pada preview URL Vercel.
 - [ ] `/admin` meminta login, bukan menampilkan mode demo.
+- [ ] `/admin/demo` mengembalikan 404 pada deployment yang sudah dikonfigurasi.
 - [ ] Login dengan user Auth yang sudah ada di `admin_users` berhasil.
+- [ ] User Auth di luar allowlist ditolak; akses tanpa login tidak boleh menulis proyek, pengaturan, atau Storage.
+- [ ] RLS aktif di tiga tabel; Security Advisor dan policy Storage sudah diperiksa pada project nyata.
 - [ ] Proyek draft tidak muncul di `/` atau `/proyek`.
 - [ ] Proyek published muncul di `/proyek`; proyek published + featured di kategori utama dapat masuk feed beranda.
 - [ ] Upload gambar JPG/PNG/WebP maksimal 5 MB berhasil di bucket `project-images`.
@@ -132,5 +147,7 @@ Checklist ini belum merupakan bukti bahwa production sudah aktif. Simpan URL dep
 
 - **Konten:** masuk `/admin`, ubah proyek/pengaturan, lalu simpan. Perubahan database tidak membutuhkan push Git atau deploy baru.
 - **Kode/desain:** commit dan push ke production branch untuk production; branch lain tetap preview sesuai pengaturan Vercel.
+- **Schema database:** jalankan migration baru di Supabase secara terpisah; auto-deploy Git tidak otomatis mengubah tabel atau policy.
 - **Storage:** menghapus proyek tidak menghapus file gambar yang pernah di-upload. Tinjau dan hapus orphan dari Supabase Storage secara manual setelah memastikan file tidak dipakai proyek lain.
+- **Backup dan ketersediaan:** pilih paket sesuai kebutuhan bisnis. Project Supabase Free dapat [dijeda setelah aktivitas rendah selama 7 hari](https://supabase.com/docs/guides/platform/free-project-pausing). Siapkan backup database dan file gambar secara terpisah: [backup database tidak mencakup objek Storage](https://supabase.com/docs/guides/platform/backups), dan Free memerlukan ekspor mandiri berkala.
 - **Kontak:** bila WhatsApp/email belum diisi, form hanya menyiapkan brief. Setelah diisi, tombol membuka WhatsApp/email tetapi user tetap harus menekan kirim.
