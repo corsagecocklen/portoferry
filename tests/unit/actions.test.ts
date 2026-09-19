@@ -48,7 +48,7 @@ const projectInput: ProjectInput = {
 };
 
 const settingsInput: SiteSettings = {
-  whatsapp: "6281234567890",
+  whatsapp: "12025550100",
   email: "hello@example.com",
   instagram: "https://www.instagram.com/ferry.kurniawan/",
   available: true,
@@ -185,6 +185,7 @@ describe("admin server actions", () => {
     expect(mocks.revalidatePath).toHaveBeenNthCalledWith(1, "/");
     expect(mocks.revalidatePath).toHaveBeenNthCalledWith(2, "/proyek");
     expect(mocks.revalidatePath).toHaveBeenNthCalledWith(3, "/proyek/[slug]", "page");
+    expect(mocks.revalidatePath).toHaveBeenNthCalledWith(4, "/layanan/[slug]", "page");
   });
 
   it("updates a project by UUID and does not revalidate after a database failure", async () => {
@@ -255,6 +256,7 @@ describe("admin server actions", () => {
   });
 
   it("upserts settings after authorization and returns the selected row", async () => {
+    const formattedSettings = { ...settingsInput, whatsapp: "+1 (202) 555-0100" };
     const chain = {
       upsert: vi.fn(),
       select: vi.fn(),
@@ -264,16 +266,18 @@ describe("admin server actions", () => {
     chain.select.mockReturnValue(chain);
     mocks.createClient.mockResolvedValue({ from: vi.fn().mockReturnValue(chain) });
 
-    await expect(saveSettings(settingsInput)).resolves.toEqual({ success: true, data: settingsInput });
+    await expect(saveSettings(formattedSettings)).resolves.toEqual({ success: true, data: settingsInput });
     expect(chain.upsert).toHaveBeenCalledWith({ id: 1, ...settingsInput }, { onConflict: "id" });
     expect(chain.select).toHaveBeenCalledWith("whatsapp, email, instagram, available");
-    expect(mocks.revalidatePath).toHaveBeenCalledTimes(3);
+    expect(mocks.requireAdmin).toHaveBeenCalledOnce();
+    expect(mocks.revalidatePath).toHaveBeenCalledTimes(4);
+    expect(mocks.revalidatePath).toHaveBeenCalledWith("/layanan/[slug]", "page");
   });
 
   it("validates settings and denies unconfigured settings writes", async () => {
     await expect(saveSettings({ ...settingsInput, whatsapp: "not-a-number" })).resolves.toEqual({
       success: false,
-      error: "Gunakan 7–15 digit internasional tanpa +, spasi, atau awalan 0.",
+      error: "Nomor belum valid. Pakai 08... atau kode negara (+62...). Panjang setelah dirapikan harus 7–15 digit.",
     });
     expect(mocks.requireAdmin).not.toHaveBeenCalled();
 
@@ -283,6 +287,17 @@ describe("admin server actions", () => {
       error: "Supabase belum dikonfigurasi.",
     });
     expect(mocks.requireAdmin).not.toHaveBeenCalled();
+    expect(mocks.createClient).not.toHaveBeenCalled();
+  });
+
+  it("keeps settings writes behind admin authorization", async () => {
+    mocks.requireAdmin.mockRejectedValue(new Error("not admin"));
+
+    await expect(saveSettings(settingsInput)).resolves.toEqual({
+      success: false,
+      error: "Akses admin diperlukan atau pengaturan gagal disimpan.",
+    });
+    expect(mocks.requireAdmin).toHaveBeenCalledOnce();
     expect(mocks.createClient).not.toHaveBeenCalled();
   });
 });

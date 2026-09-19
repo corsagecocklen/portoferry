@@ -14,6 +14,7 @@ const links = [
 
 export function SiteHeader() {
   const pathname = usePathname();
+  const contactHref = pathname.startsWith("/layanan/") ? "#kontak" : "/#kontak";
   const [open, setOpen] = useState(false);
   const dialog = useRef<HTMLDialogElement>(null);
 
@@ -28,15 +29,15 @@ export function SiteHeader() {
       <div className="container header-inner">
         <Logo />
         <nav className="desktop-nav" aria-label="Navigasi utama">
-          {links.map(link => <Link key={link.href} href={link.href} aria-current={pathname.startsWith("/proyek") && link.href === "/proyek" ? "page" : undefined}>{link.label}</Link>)}
+          {links.map(link => <Link key={link.href} href={link.href} aria-current={pathname.startsWith("/proyek") && link.href === "/proyek" ? "page" : pathname.startsWith("/layanan/") && link.href === "/#layanan" ? "location" : undefined}>{link.label}</Link>)}
         </nav>
-        <Link href="/#kontak" className="button button-outline header-cta">Ngobrol dulu <ArrowUpRight size={16} /></Link>
+        <Link href={contactHref} className="button button-outline header-cta">Ngobrol dulu <ArrowUpRight size={16} /></Link>
         <button className="icon-button menu-toggle" onClick={() => setOpen(true)} aria-label="Buka navigasi" aria-expanded={open} aria-controls="mobile-navigation"><Menu /></button>
       </div>
       <dialog ref={dialog} id="mobile-navigation" aria-label="Navigasi situs" className="mobile-menu" onCancel={() => setOpen(false)} onClose={() => setOpen(false)}>
         <div className="mobile-menu-head"><Logo /><button className="icon-button" onClick={() => setOpen(false)} aria-label="Tutup navigasi"><X /></button></div>
         <nav aria-label="Navigasi seluler">
-          {[...links, { href: "/#kontak", label: "Ngobrol dulu" }].map((link, i) => <Link onClick={() => setOpen(false)} key={link.href} href={link.href}><span className="mono">0{i + 1}</span>{link.label}<ArrowUpRight /></Link>)}
+          {[...links, { href: contactHref, label: "Ngobrol dulu" }].map((link, i) => <Link onClick={() => setOpen(false)} key={link.href} href={link.href}><span className="mono">0{i + 1}</span>{link.label}<ArrowUpRight /></Link>)}
         </nav>
         <p>Ferry Kurniawan<br /><span className="muted">Web, IT & video. Dari ide sampai tayang.</span></p>
       </dialog>

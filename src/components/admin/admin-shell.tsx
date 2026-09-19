@@ -278,27 +278,33 @@ export function AdminShell({ mode, adminEmail, initialProjects, initialSettings 
     }
   }
 
-  function validateSettings() {
+  function validateSettings(): SiteSettings | null {
     const nextErrors: Partial<Record<keyof SiteSettings, string>> = {};
     const parsed = settingsSchema.safeParse(settingsDraft);
     if (!parsed.success) {
       for (const issue of parsed.error.issues) nextErrors[issue.path[0] as keyof SiteSettings] ??= issue.message;
+      setSettingsErrors(nextErrors);
+      return null;
     }
 
-    setSettingsErrors(nextErrors);
-    return Object.keys(nextErrors).length === 0;
+    setSettingsErrors({});
+    return parsed.data;
   }
 
   async function handleSettingsSave(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     clearFeedback();
-    if (!validateSettings()) return;
+    if (!demoReady) {
+      setError("Demo sedang disiapkan. Coba lagi.");
+      return;
+    }
+    const settings = validateSettings();
+    if (!settings) return;
 
     setBusy(true);
 
     try {
       if (mode === "demo") {
-        const settings = settingsSchema.parse(settingsDraft);
         if (!saveDemoState(projects, settings)) return;
         setSavedSettings(settings);
         setSettingsDraft(settings);
@@ -306,7 +312,7 @@ export function AdminShell({ mode, adminEmail, initialProjects, initialSettings 
         return;
       }
 
-      const result = await saveSettings(settingsDraft);
+      const result = await saveSettings(settings);
       if (!result.success) {
         setError(result.error);
         return;
@@ -411,14 +417,14 @@ export function AdminShell({ mode, adminEmail, initialProjects, initialSettings 
 
           <section className="admin-section admin-settings-section" id="settings" aria-labelledby="settings-heading">
             <div className="admin-section-heading"><div><span className="admin-kicker">KONTAK SITUS</span><h2 id="settings-heading">Pengaturan yang tampil publik</h2></div><MessageCircle size={20} aria-hidden="true" /></div>
-            <form className="admin-settings-card" onSubmit={handleSettingsSave} aria-busy={busy} noValidate>
+            <form className="admin-settings-card" onSubmit={handleSettingsSave} aria-busy={busy || !demoReady} noValidate>
               <div className="admin-settings-copy"><h3>Bagaimana orang menghubungimu?</h3><p>Isi hanya kanal yang siap kamu gunakan. Field kosong tidak akan ditampilkan di situs.</p>{mode === "demo" && <p className="admin-demo-inline-note">Pengaturan ini hanya tersimpan di browser ini.</p>}</div>
-              <div className="admin-settings-fields">
-                <label className="field" htmlFor="settings-whatsapp"><span className="admin-field-label-icon"><MessageCircle size={15} /> WhatsApp</span><input id="settings-whatsapp" inputMode="numeric" value={settingsDraft.whatsapp} onChange={(event) => { setSettingsDraft((current) => ({ ...current, whatsapp: event.target.value.replace(/\D/g, "") })); setSettingsErrors((current) => ({ ...current, whatsapp: undefined })); }} placeholder="628123456789" aria-invalid={Boolean(settingsErrors.whatsapp)} aria-describedby={settingsErrors.whatsapp ? "settings-whatsapp-error" : "settings-whatsapp-help"} disabled={busy} /><span id="settings-whatsapp-help" className="admin-field-help">Digit internasional tanpa tanda +.</span>{settingsErrors.whatsapp && <span id="settings-whatsapp-error" className="admin-field-error">{settingsErrors.whatsapp}</span>}</label>
+              <fieldset className="admin-settings-fields" aria-label="Detail kontak publik" disabled={busy || !demoReady}>
+                <label className="field" htmlFor="settings-whatsapp"><span className="admin-field-label-icon"><MessageCircle size={15} /> WhatsApp</span><input id="settings-whatsapp" type="tel" inputMode="tel" value={settingsDraft.whatsapp} onChange={(event) => { setSettingsDraft((current) => ({ ...current, whatsapp: event.target.value })); setSettingsErrors((current) => ({ ...current, whatsapp: undefined })); }} placeholder="08xx xxxx xxxx atau +62 ..." aria-invalid={Boolean(settingsErrors.whatsapp)} aria-describedby={settingsErrors.whatsapp ? "settings-whatsapp-help settings-whatsapp-error" : "settings-whatsapp-help"} disabled={busy} /><span id="settings-whatsapp-help" className="admin-field-help">Terima 08..., 62..., atau +62... dengan spasi, tanda hubung, dan kurung. Disimpan sebagai digit internasional tanpa tanda +.</span>{settingsErrors.whatsapp && <span id="settings-whatsapp-error" className="admin-field-error">{settingsErrors.whatsapp}</span>}</label>
                 <label className="field" htmlFor="settings-email"><span className="admin-field-label-icon"><Mail size={15} /> Email</span><input id="settings-email" type="email" autoComplete="email" value={settingsDraft.email} onChange={(event) => { setSettingsDraft((current) => ({ ...current, email: event.target.value })); setSettingsErrors((current) => ({ ...current, email: undefined })); }} placeholder="halo@domain.com" aria-invalid={Boolean(settingsErrors.email)} aria-describedby={settingsErrors.email ? "settings-email-error" : undefined} disabled={busy} />{settingsErrors.email && <span id="settings-email-error" className="admin-field-error">{settingsErrors.email}</span>}</label>
                 <label className="field" htmlFor="settings-instagram"><span className="admin-field-label-icon"><ArrowUpRight size={15} /> Instagram</span><input id="settings-instagram" type="url" value={settingsDraft.instagram} onChange={(event) => { setSettingsDraft((current) => ({ ...current, instagram: event.target.value })); setSettingsErrors((current) => ({ ...current, instagram: undefined })); }} placeholder="https://instagram.com/username" aria-invalid={Boolean(settingsErrors.instagram)} aria-describedby={settingsErrors.instagram ? "settings-instagram-error" : undefined} disabled={busy} />{settingsErrors.instagram && <span id="settings-instagram-error" className="admin-field-error">{settingsErrors.instagram}</span>}</label>
                 <label className="admin-availability-toggle"><input type="checkbox" checked={settingsDraft.available} onChange={(event) => setSettingsDraft((current) => ({ ...current, available: event.target.checked }))} disabled={busy} /><span><strong>Terima proyek baru</strong><small>Atur status ketersediaan yang terlihat di halaman kontak.</small></span></label>
-              </div>
+              </fieldset>
               <div className="admin-settings-actions"><button className="button button-primary" type="submit" disabled={busy || !demoReady}>{busy ? <LoaderCircle className="admin-spin" size={17} /> : <Check size={17} />}{busy ? "Menyimpan…" : "Simpan pengaturan"}</button><span className="admin-form-status" aria-live="polite">{busy ? "Perubahan sedang disimpan…" : ""}</span></div>
             </form>
           </section>

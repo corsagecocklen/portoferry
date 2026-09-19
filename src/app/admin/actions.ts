@@ -28,6 +28,7 @@ function revalidatePublicPaths() {
   revalidatePath("/");
   revalidatePath("/proyek");
   revalidatePath("/proyek/[slug]", "page");
+  revalidatePath("/layanan/[slug]", "page");
 }
 
 export async function login(email: string, password: string): Promise<ActionResult> {

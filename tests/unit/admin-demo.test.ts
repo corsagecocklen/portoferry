@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { defaultSettings, demoProjects } from "@/lib/demo-data";
 import { projectToInput, slugify, textToTags, validateProjectInput } from "@/components/admin/admin-types";
 import { readDemoSnapshot, writeDemoSnapshot } from "@/components/admin/admin-demo-storage";
+import { settingsSchema } from "@/lib/validation";
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -42,6 +43,18 @@ describe("atomic demo persistence", () => {
     expect(writeDemoSnapshot(demoProjects, defaultSettings)).toBe(true);
     expect(setItem).toHaveBeenCalledTimes(1);
     expect(readDemoSnapshot([], defaultSettings).projects).toEqual(demoProjects);
+  });
+
+  it("keeps normalized settings when the demo snapshot is reloaded", () => {
+    const { setItem } = storage();
+    const settings = settingsSchema.parse({
+      ...defaultSettings,
+      whatsapp: "0812 0000 0000",
+    });
+
+    expect(writeDemoSnapshot(demoProjects, settings)).toBe(true);
+    expect(JSON.parse(setItem.mock.calls[0][1]).settings.whatsapp).toBe("6281200000000");
+    expect(readDemoSnapshot([], defaultSettings).settings.whatsapp).toBe("6281200000000");
   });
 
   it("keeps an intentionally empty catalog empty", () => {

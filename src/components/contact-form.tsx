@@ -2,10 +2,10 @@
 
 import { ArrowDownToLine, ArrowUpRight, Check, Copy, MessageCircle, X } from "lucide-react";
 import { useRef, useState, type FormEvent } from "react";
-import { categories, type SiteSettings } from "@/lib/types";
+import { categories, type Category, type SiteSettings } from "@/lib/types";
 
-export function ContactForm({ settings }: { settings: SiteSettings }) {
-  const [service, setService] = useState<string>("Web Development");
+export function ContactForm({ settings, initialService }: { settings: SiteSettings; initialService?: Category }) {
+  const [service, setService] = useState<Category>(initialService ?? "Web Development");
   const [brief, setBrief] = useState("");
   const [copied, setCopied] = useState(false);
   const [copyError, setCopyError] = useState("");

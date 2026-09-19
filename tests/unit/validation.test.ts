@@ -26,7 +26,7 @@ function validProject(overrides: Partial<ProjectInput> = {}): ProjectInput {
 
 function validSettings(overrides: Partial<SiteSettings> = {}): SiteSettings {
   return {
-    whatsapp: "6281234567890",
+    whatsapp: "12025550100",
     email: "hello@example.com",
     instagram: "https://www.instagram.com/ferry.kurniawan/",
     available: true,
@@ -172,20 +172,51 @@ describe("settingsSchema", () => {
     expect(settingsSchema.safeParse(validSettings({ whatsapp: "", email: "", instagram: "" })).success).toBe(true);
   });
 
-  it("accepts wa.me-compatible international digits and rejects display formatting", () => {
-    for (const whatsapp of ["6281234567890", "628123456", "9876543"]) {
-      expect(settingsSchema.safeParse(validSettings({ whatsapp })).success, whatsapp).toBe(true);
+  it("normalizes local, formatted, and international WhatsApp numbers", () => {
+    const cases = [
+      ["0812 0000 0000", "6281200000000"],
+      ["08-1200-0000-00", "6281200000000"],
+      ["62 (812) 0000-0000", "6281200000000"],
+      ["+62 812-0000-0000", "6281200000000"],
+      ["+62 0812-0000-0000", "6281200000000"],
+      ["62 (0)812-0000-0000", "6281200000000"],
+      ["+1 (202) 555-0100", "12025550100"],
+      ["12025550100", "12025550100"],
+      ["9876543", "9876543"],
+      ["123456789012345", "123456789012345"],
+    ] as const;
+
+    for (const [whatsapp, expected] of cases) {
+      const parsed = settingsSchema.safeParse(validSettings({ whatsapp }));
+      expect(parsed.success, whatsapp).toBe(true);
+      if (parsed.success) expect(parsed.data.whatsapp).toBe(expected);
     }
 
-    for (const whatsapp of ["+6281234567890", "+62 812-3456-7890", "62 (812) 3456-7890"]) {
+    const blank = settingsSchema.safeParse(validSettings({ whatsapp: "   " }));
+    expect(blank.success).toBe(true);
+    if (blank.success) expect(blank.data.whatsapp).toBe("");
+  });
+
+  it("rejects malformed WhatsApp values after normalization", () => {
+    for (const whatsapp of [
+      "abc",
+      "+62",
+      "123456",
+      "+1234567890123456",
+      "()",
+      "---",
+      "62+812-0000-0000",
+      "++6281200000000",
+      "+62 00812-0000-0000",
+      "+62 812 0000 0000 letters",
+      "0812 3456 7890 123",
+      "+1 202 555 0100 12345",
+    ]) {
       expect(settingsSchema.safeParse(validSettings({ whatsapp })).success, whatsapp).toBe(false);
     }
   });
 
-  it("rejects malformed WhatsApp values and unsafe email or Instagram values", () => {
-    for (const whatsapp of ["abc", "+62", "javascript:alert(1)", "+628123456789012345678901234567890123"]) {
-      expect(settingsSchema.safeParse(validSettings({ whatsapp })).success, whatsapp).toBe(false);
-    }
+  it("rejects unsafe email or Instagram values", () => {
 
     for (const email of ["not-an-email", "person@example", "person @example.com", "javascript:alert(1)"]) {
       expect(settingsSchema.safeParse(validSettings({ email })).success, email).toBe(false);

@@ -20,13 +20,16 @@ Prinsip penulisan mengikuti [No AI Slop](https://github.com/petergyang/no-ai-slo
 
 | Area | Sumber konten | Kapan tampil |
 | --- | --- | --- |
-| Hero dan layanan | Kode aplikasi | Selalu, dengan fokus tiga layanan utama. |
+| Hero | `src/components/hero-carousel.tsx` | Empat slide dengan pergantian otomatis setiap 8 detik, kontrol manual, serta tombol jeda. |
+| Halaman layanan | `src/lib/services.ts` | Web Development, Video Editing, dan IT Consulting masing-masing punya halaman, FAQ, serta brief yang sudah memilih layanan terkait. |
 | Feed “karya terbaru” di beranda | `projects` | Hanya proyek `published` + `featured` dari Web Development, IT Consulting, atau Video Editing; maksimal tiga sesuai urutan. |
 | Katalog `/proyek` | `projects` | Semua proyek `published`, termasuk Graphic Design dan AI Consulting. |
 | Detail `/proyek/[slug]` | `projects` | Satu proyek `published` dengan slug yang sesuai. |
 | Status/kontak | `site_settings` | Dibaca publik; WhatsApp, email, dan Instagram boleh kosong. |
 
 Pengunjung tidak melihat proyek draft. Status `featured` bukan pengganti `published`: proyek harus dipublish lebih dahulu agar dapat tampil.
+
+Hero berhenti berganti saat diarahkan pointer, berada di luar layar, atau tab browser disembunyikan. Fokus keyboard dan pemilihan slide manual menghentikan rotasi sampai pengunjung menekan tombol mulai. Preferensi reduced motion mematikan rotasi awal; navigasi manual tetap tersedia. Teks hero dan halaman layanan saat ini dikelola di kode, bukan panel admin.
 
 ## Live admin versus demo
 
@@ -73,12 +76,16 @@ Delete proyek tidak menghapus file Storage. Setelah menghapus atau mengganti gam
 
 Panel menyimpan satu baris `site_settings`:
 
-- **WhatsApp:** kosongkan sampai siap. Jika diisi, gunakan **7–15 digit internasional tanpa `+`, spasi, tanda baca, atau awalan `0`**, contoh `6281234567890`.
+- **WhatsApp:** kosongkan sampai siap. Format `08...`, `62...`, `+62...`, spasi, tanda hubung, dan kurung diterima. Contoh input uji `0812 0000 0000` dinormalisasi menjadi `6281200000000`; gunakan nomor bisnismu sendiri. Nomor internasional berkode negara lain juga bisa dipakai. Panjang **7–15 digit dihitung setelah normalisasi**, lalu hanya digit internasional yang disimpan untuk tautan `wa.me`.
 - **Email:** opsional, gunakan alamat yang benar-benar dapat menerima pesan.
 - **Instagram:** opsional, hanya URL HTTPS `instagram.com` atau `www.instagram.com`.
 - **Available:** mengubah indikator ketersediaan di hero dan bagian kontak.
 
 Data kontak sengaja tidak diisi di awal agar website tidak mengarang informasi. Setelah akun dan kontak nyata siap, verifikasi bahwa WhatsApp, email, dan Instagram mengarah ke tujuan yang benar.
+
+Kontak yang disimpan lewat admin live tersedia publik. Mode demo hanya menyimpannya di browser dan tidak mengubah kontak website publik.
+
+Format Indonesia yang masih menyertakan awalan lokal setelah kode negara, seperti `+62 (0)812...`, juga dirapikan menjadi `62812...` agar tautan WhatsApp tidak memakai awalan `620` yang keliru.
 
 Form kontak tidak mengirim pesan dari server. Form membuat brief, lalu:
 

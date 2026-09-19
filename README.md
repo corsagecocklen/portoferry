@@ -6,7 +6,8 @@ Website portofolio dan layanan Ferry Kurniawan untuk **Web Development**, **IT C
 
 ## Fitur
 
-- Landing page dengan fokus layanan Web Development, IT Consulting, dan Video Editing.
+- Landing page dengan empat slide hero: perkenalan, Web Development, Video Editing, dan IT Consulting. Rotasi otomatis bisa dijeda dan mengikuti preferensi reduced motion.
+- Halaman khusus untuk setiap layanan utama, dengan lingkup kerja, FAQ, karya terkait, dan brief sesuai layanan.
 - Feed karya terbaru bergaya postingan sosial di beranda, berdasarkan proyek `published` + `featured`.
 - Katalog proyek dan halaman detail untuk lima kategori: Web Development, IT Consulting, Video Editing, Graphic Design, dan AI Consulting.
 - Panel admin live untuk tambah, edit, hapus, draft, publish, unggulan, urutan, tag, dan upload gambar proyek.
@@ -48,6 +49,9 @@ File `.env.example` adalah template. Nilai berawalan `NEXT_PUBLIC_` memang dipak
 | Route | Fungsi |
 | --- | --- |
 | `/` | Landing page, layanan, feed karya, proses, FAQ, dan kontak. |
+| `/layanan/web-development` | Lingkup pembuatan website, proses, dan contoh karya web. |
+| `/layanan/video-editing` | Jenis editing, bahan yang perlu disiapkan, dan karya terkait. |
+| `/layanan/it-consulting` | Pemetaan kebutuhan IT, rekomendasi sistem, dan pendampingan. |
 | `/proyek` | Katalog semua proyek yang sudah dipublish. |
 | `/proyek/[slug]` | Cerita/detail satu proyek. |
 | `/admin` | Login dan panel admin live jika Supabase terkonfigurasi. |

@@ -3,8 +3,10 @@ import { z } from "zod";
 import { categories } from "./types";
 
 const localImagePathPattern = /^\/images\/[A-Za-z0-9][A-Za-z0-9._/-]*$/;
-const whatsappPattern = /^[1-9][0-9]{6,14}$/;
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+export const whatsappValidationMessage =
+  "Nomor belum valid. Pakai 08... atau kode negara (+62...). Panjang setelah dirapikan harus 7–15 digit.";
 
 function isLocalImagePath(value: string): boolean {
   if (
@@ -80,8 +82,79 @@ function isSafeProjectUrl(value: string): boolean {
   }
 }
 
-function isSafeWhatsapp(value: string): boolean {
-  return value === "" || whatsappPattern.test(value);
+function hasValidWhatsappFormatting(value: string, hasPlus: boolean): boolean {
+  let previous: "digit" | "open" | "close" | "hyphen" | null = null;
+  let parentheses = 0;
+
+  for (const character of value) {
+    if (/\s/.test(character)) {
+      continue;
+    }
+
+    if (/\d/.test(character)) {
+      previous = "digit";
+      continue;
+    }
+
+    if (character === "-") {
+      if (previous !== "digit" && previous !== "close") {
+        return false;
+      }
+      previous = "hyphen";
+      continue;
+    }
+
+    if (character === "(") {
+      if (parentheses > 0 || (previous !== null && previous !== "digit") || (previous === null && hasPlus)) {
+        return false;
+      }
+      parentheses = 1;
+      previous = "open";
+      continue;
+    }
+
+    if (character === ")") {
+      if (parentheses === 0 || previous !== "digit") {
+        return false;
+      }
+      parentheses = 0;
+      previous = "close";
+      continue;
+    }
+
+    return false;
+  }
+
+  return parentheses === 0 && previous !== null && previous !== "open" && previous !== "hyphen";
+}
+
+export function normalizeWhatsapp(value: string): string | null {
+  const trimmed = value.trim();
+
+  if (trimmed === "") {
+    return "";
+  }
+
+  const hasPlus = trimmed.startsWith("+");
+  const formatted = hasPlus ? trimmed.slice(1) : trimmed;
+
+  if (!/^[0-9\s()-]+$/.test(formatted) || !hasValidWhatsappFormatting(formatted, hasPlus)) {
+    return null;
+  }
+
+  const digits = formatted.replace(/[^0-9]/g, "");
+
+  if (digits === "") {
+    return null;
+  }
+
+  const international = !hasPlus && digits.startsWith("08")
+    ? `62${digits.slice(1)}`
+    : digits;
+  // Indonesian display numbers may retain the domestic 0 after +62.
+  const normalized = international.replace(/^620(?=[1-9])/, "62");
+
+  return !normalized.startsWith("620") && /^[1-9][0-9]{6,14}$/.test(normalized) ? normalized : null;
 }
 
 function isSafeInstagram(value: string): boolean {
@@ -143,11 +216,16 @@ export const projectSchema = z
 
 export const settingsSchema = z
   .object({
-    whatsapp: z
-      .string()
-      .trim()
-      .max(15, "Nomor WhatsApp maksimal 15 digit.")
-      .refine(isSafeWhatsapp, "Gunakan 7–15 digit internasional tanpa +, spasi, atau awalan 0."),
+    whatsapp: z.string().trim().transform((value, context) => {
+      const normalized = normalizeWhatsapp(value);
+
+      if (normalized === null) {
+        context.addIssue({ code: "custom", message: whatsappValidationMessage });
+        return z.NEVER;
+      }
+
+      return normalized;
+    }),
     email: z
       .string()
       .trim()
