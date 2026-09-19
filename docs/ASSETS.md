@@ -7,7 +7,7 @@ Asset di bawah adalah file yang saat ini disiapkan untuk Portoferry. File turuna
 | File | Ukuran | Pemakaian | Sumber/provenance |
 | --- | ---: | --- | --- |
 | `ferry-landing.webp` | 1920×1072 | Satu foto tetap untuk seluruh slide hero beranda. | Versi WebP dari `Change_design_using_face_2K_20260919154051.jpeg` yang diberikan pengguna; diperkecil dari 2752×1536 tanpa mengubah wajah, pakaian, atau latar. Metadata asli tidak disertakan. |
-| `ferry-hero.webp` | 1000×1121 | Cutout awal; sumber komposisi artwork proyek dan Open Graph. | Turunan terproses dari poster/foto Ferry yang diberikan pengguna. |
+| `ferry-hero.webp` | 1000×1121 | Cutout awal; sumber artwork proyek dan social preview sebelumnya. | Turunan terproses dari poster/foto Ferry yang diberikan pengguna. |
 | `ferry-formal.webp` | 896×1200 | Potret di halaman IT Consulting. | Versi WebP dari foto setengah badan berjas yang diberikan pengguna, tanpa metadata asli. |
 | `ferry-formal-cutout.webp` | 677×1116 | Asset hero sebelumnya; tidak dipakai oleh hero aktif. | Turunan foto berjas yang sama; latar dihapus dan tepi diperhalus secara lokal, tanpa mengganti wajah atau pakaian. |
 | `ferry-portrait.webp` | 650×813 | Potret bagian “Tentang”. | Turunan terproses dari foto wajah Ferry yang diberikan pengguna. |
@@ -18,10 +18,19 @@ Asset di bawah adalah file yang saat ini disiapkan untuk Portoferry. File turuna
 | `project-jeda.webp` | 1000×1000 | Kartu konsep “Di antara jeda”. | Artwork ilustratif mandiri dengan foto hutan Unsplash ter-embed; bukan video final/pekerjaan klien. |
 | `project-system.webp` | 1000×1000 | Kartu konsep pemetaan sistem. | Ilustrasi UI/workflow yang dibuat khusus; bukan implementasi bisnis nyata. |
 | `project-ai.webp` | 1000×1000 | Kartu konsep AI workflow. | Ilustrasi UI yang dibuat khusus; bukan produk AI aktif. |
-| `og-portoferry.jpg` | 1200×630 | Open Graph/social sharing image. | Komposisi asset Ferry dan copy Portoferry. |
+| `og-portoferry-v2.jpg` | 1200×630 | Gambar share Open Graph/Twitter saat ini. | Dibuat dari hero `ferry-landing.webp` yang disetujui, dengan headline dan copy layanan Portoferry saat ini; regenerasi memakai `node scripts/generate-og-image.mjs`. |
+| `og-portoferry.jpg` | 1200×630 | Gambar share legacy; tidak lagi direferensikan metadata. | Komposisi sebelumnya dipertahankan agar URL versi lama tidak hilang tiba-tiba. |
 | `project-placeholder.svg` | 1000×1000 viewBox | Fallback ketika gambar proyek belum tersedia. | SVG internal sederhana. |
 
 `public/icon.svg` dan `src/app/icon.svg` adalah ikon aplikasi. Ikon UI lain berasal dari [Lucide](https://lucide.dev/) dengan lisensi ISC. Font Manrope dan Instrument Serif dipasang lewat Fontsource dengan lisensi OFL; cek file lisensi paket saat mendistribusikan ulang.
+
+## Regenerasi artwork share
+
+Artwork share dibuat dari asset hero yang sudah dikomit agar perubahan dapat diulang tanpa dependency baru:
+
+```bash
+node scripts/generate-og-image.mjs
+```
 
 ## Asset pengguna dan consent
 

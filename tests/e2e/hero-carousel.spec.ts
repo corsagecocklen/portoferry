@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 const slides = [
   { label: "Perkenalan", heading: "Website siap.Bisnis jalan.", cta: "Ceritakan idemu", href: "#kontak" },
@@ -6,6 +6,16 @@ const slides = [
   { label: "Video Editing", heading: "Footage ada.Saatnya tayang.", cta: "Lihat layanan video", href: "/layanan/video-editing" },
   { label: "IT Consulting", heading: "Rapikan IT,fokus kerja.", cta: "Bahas urusan IT", href: "/layanan/it-consulting" },
 ] as const;
+
+async function loadWithPausedClock(page: Page, reducedMotion: "reduce" | "no-preference" = "no-preference") {
+  await page.clock.install({ time: new Date("2026-09-19T00:00:00Z") });
+  await page.clock.pauseAt(new Date("2026-09-19T01:00:00Z"));
+  await page.emulateMedia({ reducedMotion });
+  await page.goto("/");
+  const carousel = page.locator(".hero-carousel");
+  await expect(carousel).toHaveAttribute("data-rotating", String(reducedMotion !== "reduce"));
+  return carousel;
+}
 
 test("all four hero slides share one photo with distinct copy and working service links", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
@@ -35,30 +45,33 @@ test("all four hero slides share one photo with distinct copy and working servic
   await expect(page.getByRole("radio", { name: "IT Consulting", exact: true })).toBeChecked();
 });
 
-test("previous and next controls wrap and resume autoplay without a play button", async ({ page }) => {
-  await page.clock.install();
-  await page.emulateMedia({ reducedMotion: "no-preference" });
-  await page.goto("/");
-  const carousel = page.locator(".hero-carousel");
+test("arrows wrap between slides and keep autoplay stopped after manual navigation", async ({ page }) => {
+  const carousel = await loadWithPausedClock(page);
   await carousel.getByRole("button", { name: "Slide sebelumnya", exact: true }).click();
   await expect(carousel).toHaveAttribute("data-active-slide", "4");
+  await expect(carousel).toHaveAttribute("data-rotating", "false");
   await carousel.getByRole("button", { name: "Slide berikutnya", exact: true }).click();
   await expect(carousel).toHaveAttribute("data-active-slide", "1");
   await page.mouse.move(0, 0);
-  await expect(carousel).toHaveAttribute("data-rotating", "true");
-  await page.clock.fastForward(3_000);
+  await page.getByRole("link", { name: "Portoferry, beranda" }).first().focus();
+  await expect(carousel).toHaveAttribute("data-rotating", "false");
+  await expect(carousel.locator("#hero-slide")).toHaveAttribute("aria-live", "polite");
+  await page.clock.fastForward(12_000);
+  await expect(carousel).toHaveAttribute("data-active-slide", "1");
+  await page.locator("#kontak").scrollIntoViewIfNeeded();
+  await carousel.scrollIntoViewIfNeeded();
+  await page.clock.fastForward(6_000);
+  await expect(carousel).toHaveAttribute("data-rotating", "false");
+  await expect(carousel).toHaveAttribute("data-active-slide", "1");
+  await carousel.getByRole("button", { name: "Slide berikutnya", exact: true }).click();
+  await expect(carousel).toHaveAttribute("data-active-slide", "2");
+  await page.clock.fastForward(6_000);
   await expect(carousel).toHaveAttribute("data-active-slide", "2");
 });
 
-test("autoplay advances every three seconds and loops through all four slides", async ({ page }) => {
-  await page.clock.install({ time: new Date("2026-09-19T00:00:00Z") });
-  await page.emulateMedia({ reducedMotion: "no-preference" });
-  await page.goto("/");
-  const carousel = page.locator(".hero-carousel");
+test("desktop autoplay advances every three seconds even with the pointer over the hero", async ({ page }) => {
+  const carousel = await loadWithPausedClock(page);
   await carousel.hover();
-  await expect(carousel).toHaveAttribute("data-rotating", "false");
-  await page.clock.pauseAt(new Date("2026-09-19T01:00:00Z"));
-  await page.mouse.move(0, 0);
   await expect(carousel).toHaveAttribute("data-rotating", "true");
 
   for (const [current, next] of [[1, 2], [2, 3], [3, 4], [4, 1]]) {
@@ -69,18 +82,9 @@ test("autoplay advances every three seconds and loops through all four slides", 
   }
 });
 
-test("hover and keyboard focus pause temporarily then resume automatically", async ({ page }) => {
-  await page.clock.install();
-  await page.emulateMedia({ reducedMotion: "no-preference" });
-  await page.goto("/");
-  const carousel = page.locator(".hero-carousel");
-  await expect(carousel).toHaveAttribute("data-rotating", "true");
-  await carousel.getByRole("heading", { level: 1 }).hover();
-  await expect(carousel).toHaveAttribute("data-rotating", "false");
-  await page.clock.fastForward(9_000);
-  await expect(carousel).toHaveAttribute("data-active-slide", "1");
-  await page.mouse.move(0, 0);
-  await expect(carousel).toHaveAttribute("data-rotating", "true");
+test("keyboard focus still pauses autoplay until focus leaves without selecting a slide", async ({ page }) => {
+  const carousel = await loadWithPausedClock(page);
+  await page.keyboard.press("Tab");
   await carousel.getByRole("link", { name: "Ceritakan idemu" }).focus();
   await expect(carousel).toHaveAttribute("data-rotating", "false");
   await page.clock.fastForward(9_000);
@@ -91,28 +95,57 @@ test("hover and keyboard focus pause temporarily then resume automatically", asy
   await expect(carousel).toHaveAttribute("data-active-slide", "2");
 });
 
+test("slides crossfade in a stable layout and inactive links stay out of keyboard navigation", async ({ page }) => {
+  const carousel = await loadWithPausedClock(page);
+  await page.evaluate(() => document.fonts.ready);
+  await expect(carousel.locator(".hero-slide-content")).toHaveCount(4);
+
+  for (const width of [320, 390, 1024, 1280, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    const controlsBefore = await carousel.locator(".hero-carousel-controls").boundingBox();
+    const heightBefore = (await carousel.boundingBox())!.height;
+    for (const [index, slide] of slides.entries()) {
+      await carousel.getByRole("button", { name: `Slide ${index + 1}: ${slide.label}`, exact: true }).click();
+      const active = carousel.locator('.hero-slide-content[data-active="true"]');
+      const inactive = carousel.locator('.hero-slide-content[data-active="false"]');
+      await expect(active).toHaveCount(1);
+      await expect(inactive).toHaveCount(3);
+      expect(await inactive.evaluateAll(elements => elements.every(element => element.hasAttribute("inert") && element.getAttribute("aria-hidden") === "true"))).toBe(true);
+      expect(await active.evaluate(element => getComputedStyle(element).transitionProperty)).toContain("opacity");
+      expect((await carousel.locator(".hero-carousel-controls").boundingBox())!.y).toBeCloseTo(controlsBefore!.y, 0);
+      expect((await carousel.boundingBox())!.height).toBeCloseTo(heightBefore, 0);
+    }
+  }
+
+  await carousel.getByRole("link", { name: "Bahas urusan IT", exact: true }).focus();
+  await page.keyboard.press("Tab");
+  await expect(carousel.getByRole("link", { name: "Lihat hasil kerja", exact: true })).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(carousel.getByRole("button", { name: "Slide 1: Perkenalan", exact: true })).toBeFocused();
+});
+
 test.describe("touch navigation", () => {
   test.use({ hasTouch: true, isMobile: true, viewport: { width: 390, height: 844 } });
 
-  test("tapping a slide does not leave autoplay paused", async ({ page }) => {
-    await page.clock.install();
-    await page.emulateMedia({ reducedMotion: "no-preference" });
-    await page.goto("/");
-    const carousel = page.locator(".hero-carousel");
+  test("mobile autoplay works until a slide is chosen, then stays stopped", async ({ page }) => {
+    const carousel = await loadWithPausedClock(page);
+    await page.clock.fastForward(3_000);
+    await expect(carousel).toHaveAttribute("data-active-slide", "2");
     await carousel.getByRole("button", { name: "Slide 3: Video Editing", exact: true }).tap();
     await expect(carousel).toHaveAttribute("data-active-slide", "3");
-    await expect(carousel).toHaveAttribute("data-rotating", "true");
-    await page.clock.fastForward(3_000);
+    await expect(carousel).toHaveAttribute("data-rotating", "false");
+    await page.clock.fastForward(9_000);
+    await expect(carousel).toHaveAttribute("data-active-slide", "3");
+    await carousel.getByRole("button", { name: "Slide berikutnya", exact: true }).tap();
+    await page.clock.fastForward(9_000);
     await expect(carousel).toHaveAttribute("data-active-slide", "4");
   });
 });
 
 test("reduced motion keeps the first slide still and all slides fit narrow screens", async ({ page }) => {
-  await page.clock.install();
-  await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.goto("/");
-  const carousel = page.locator(".hero-carousel");
+  const carousel = await loadWithPausedClock(page, "reduce");
   await expect(carousel).toHaveAttribute("data-rotating", "false");
+  expect(await carousel.locator('.hero-slide-content[data-active="true"]').evaluate(element => getComputedStyle(element).transitionProperty)).toBe("none");
   await page.clock.fastForward(32_000);
   await expect(carousel).toHaveAttribute("data-active-slide", "1");
 

@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { demoProjects } from "../../src/lib/demo-data";
 
@@ -7,6 +7,28 @@ const serviceRoutes = [
   { slug: "video-editing", title: "Video Editing" },
   { slug: "it-consulting", title: "IT Consulting" },
 ] as const;
+
+const serviceLayoutSelectors = [
+  "#cakupan",
+  "#proses",
+  "#contoh-kerja",
+  "#faq",
+  'section[aria-label="Catatan pengerjaan"]',
+  'nav[aria-label="Layanan lainnya"]',
+].map((selector) => `main[data-service] ${selector}`).join(", ");
+
+async function expectServiceLayoutWithinViewport(page: Page, width: number) {
+  const boxes = await page.locator(serviceLayoutSelectors).evaluateAll((elements) => elements.map((element) => {
+    const rect = element.getBoundingClientRect();
+    return { name: element.id || element.getAttribute("aria-label") || "service section", left: rect.left, right: rect.right };
+  }));
+
+  expect(boxes).toHaveLength(6);
+  for (const box of boxes) {
+    expect(box.left, `${box.name} starts outside the ${width}px viewport`).toBeGreaterThanOrEqual(-0.5);
+    expect(box.right, `${box.name} ends outside the ${width}px viewport`).toBeLessThanOrEqual(width + 0.5);
+  }
+}
 
 for (const service of serviceRoutes) {
   test(`${service.title} page has its own metadata, scope, and project context`, async ({ page }) => {
@@ -80,11 +102,12 @@ test("service links are reachable from landing cards, footer, and sitemap", asyn
 for (const service of serviceRoutes) {
   test(`${service.title} is responsive and passes accessibility basics`, async ({ page }) => {
     await page.goto(`/layanan/${service.slug}`);
-    for (const width of [320, 390, 768, 1440]) {
+    await page.evaluate(() => document.fonts.ready);
+    for (const width of [320, 375, 390, 400, 430, 768, 1024, 1440]) {
       await page.setViewportSize({ width, height: 900 });
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      await expectServiceLayoutWithinViewport(page, width);
     }
-    await page.evaluate(() => document.fonts.ready);
     const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze();
     expect(results.violations).toEqual([]);
     const expectedProjects = demoProjects.filter(project => project.published && project.category === service.title);

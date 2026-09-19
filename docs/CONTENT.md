@@ -29,7 +29,7 @@ Prinsip penulisan mengikuti [No AI Slop](https://github.com/petergyang/no-ai-slo
 
 Pengunjung tidak melihat proyek draft. Status `featured` bukan pengganti `published`: proyek harus dipublish lebih dahulu agar dapat tampil.
 
-Hero berhenti sementara saat diarahkan pointer, mendapat fokus keyboard, berada di luar layar, atau tab browser disembunyikan. Rotasi berlanjut otomatis setelah kondisi itu berakhir; pemilihan slide lewat klik atau sentuhan tidak membutuhkan tombol mulai. Preferensi reduced motion mematikan rotasi; navigasi manual tetap tersedia. Foto `ferry-landing.webp` tidak berganti antar slide. Teks hero dan halaman layanan saat ini dikelola di kode, bukan panel admin.
+Hover pointer tidak menghentikan rotasi hero. Setelah panah atau nomor slide dipilih lewat klik, keyboard, atau sentuhan, pergantian otomatis berhenti sampai hero dimuat ulang; navigasi manual tetap tersedia. Tanpa pemilihan manual, hero berhenti sementara saat mendapat fokus keyboard, berada di luar layar, atau tab browser disembunyikan, lalu melanjutkan rotasi saat kondisi itu berakhir. Preferensi reduced motion mematikan rotasi dan transisi. Teks berganti dengan crossfade tanpa menggeser kontrol, sementara foto `ferry-landing.webp` tetap sama. Teks hero dan halaman layanan saat ini dikelola di kode, bukan panel admin.
 
 ## Live admin versus demo
 

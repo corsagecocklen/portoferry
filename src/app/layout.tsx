@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "@fontsource-variable/manrope";
 import "@fontsource/instrument-serif/400-italic.css";
 import "./globals.css";
+import { socialImage } from "@/lib/site-metadata";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://portoferry.my.id";
 
@@ -15,7 +16,7 @@ export const metadata: Metadata = {
     locale: "id_ID",
     type: "website",
     siteName: "Portoferry",
-    images: [{ url: "/images/og-portoferry.jpg", width: 1200, height: 630, alt: "Portoferry — Ferry Kurniawan" }],
+    images: [socialImage],
   },
   twitter: { card: "summary_large_image" },
 };

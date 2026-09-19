@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ServiceDetail } from "@/components/service-detail";
 import { getPublicProjects, getSiteSettings } from "@/lib/data";
 import { getService, services } from "@/lib/services";
+import { socialImage } from "@/lib/site-metadata";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -34,7 +35,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       type: "website",
       locale: "id_ID",
       siteName: "Portoferry",
-      images: [{ url: "/images/og-portoferry.jpg", width: 1200, height: 630, alt: "Portoferry — Ferry Kurniawan" }],
+      images: [socialImage],
     },
   };
 }

@@ -78,14 +78,17 @@ dialog::backdrop { background: #03080cd9; backdrop-filter: blur(7px); }
 
 .hero { position: relative; overflow: hidden; }
 .hero-grid { position: relative; z-index: 1; min-height: 650px; display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); align-items: center; }
-.hero-copy { padding-block: 34px; position: relative; z-index: 2; }
+.hero-copy { min-width: 0; padding-block: 34px; position: relative; z-index: 2; }
 .hero-intro { display: flex; align-items: center; gap: 12px; font-size: 10px; letter-spacing: .095em; font-weight: 550; margin-bottom: 29px; color: #d0d8de; }
 .intro-line { height: 1px; width: 22px; background: var(--accent); }
 .wave { font-size: 17px; color: var(--accent); margin-left: 2px; }
 .hero h1 { font-size: clamp(52px, 6.15vw, 88px); }
 .hero h1 em { display: inline-block; font-size: 1.13em; line-height: 1.08; }
 .hero-description { margin-top: 29px; color: #a4afb7; font-size: 14px; line-height: 1.9; min-height: 80px; max-width: 445px; }
-.hero-slide-content { animation: hero-slide-in .4s ease-out; }
+/* Shared grid space keeps the controls still while slides crossfade. */
+.hero-slide { display: grid; grid-template-columns: minmax(0, 1fr); isolation: isolate; }
+.hero-slide-content { grid-area: 1 / 1; min-width: 0; display: flex; flex-direction: column; opacity: 0; visibility: hidden; transform: translateY(12px); pointer-events: none; transition: opacity .5s ease, transform .5s cubic-bezier(.22, 1, .36, 1), visibility 0s .5s; }
+.hero-slide-content[data-active="true"] { opacity: 1; visibility: visible; transform: translateY(0); pointer-events: auto; z-index: 1; transition-delay: 0s; }
 .hero-carousel-controls { display: flex; align-items: center; gap: 32px; margin-top: 28px; }
 .hero-slide-picker, .hero-navigation-controls { display: flex; align-items: center; gap: 8px; }
 .hero-slide-picker > button { display: grid; align-content: center; gap: 7px; width: 34px; min-height: 40px; padding: 4px; background: transparent; color: var(--muted); }
@@ -95,8 +98,7 @@ dialog::backdrop { background: #03080cd9; backdrop-filter: blur(7px); }
 [aria-pressed="true"] > .slide-indicator { background: var(--accent); }
 .hero-navigation-controls > button { display: grid; place-items: center; width: 36px; height: 36px; border: 1px solid #33434e; border-radius: 50%; background: transparent; color: #bdcbd4; }
 .hero-navigation-controls > button:hover { background: #afd9f214; border-color: var(--accent); color: var(--accent); }
-@keyframes hero-slide-in { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: translateY(0); } }
-.hero-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 20px 31px; margin-top: 30px; }
+.hero-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 20px 31px; margin-top: auto; padding-top: 30px; }
 .hero-availability { margin-top: 30px; display: flex; align-items: center; gap: 10px; color: #87959f; font-size: 10px; }
 .hero-visual { position: absolute; inset: 0; pointer-events: none; }
 .hero-portrait { object-fit: cover; object-position: 70% center; }
@@ -373,7 +375,7 @@ dialog::backdrop { background: #03080cd9; backdrop-filter: blur(7px); }
   .hero-slide-picker, .hero-navigation-controls { gap: 4px; }
   .hero-slide-picker > button { width: 30px; }
   .hero-navigation-controls > button { width: 32px; height: 32px; }
-  .hero-actions { margin-top: 26px; gap: 27px; }
+  .hero-actions { padding-top: 26px; gap: 27px; }
   .hero-actions .button { font-size: 11px; padding: 14px 18px; }
   .hero-availability { margin-top: 22px; font-size: 9px; }
   .hero-visual { position: relative; order: 2; width: 100%; aspect-ratio: 1.15; max-height: 530px; margin-top: 16px; }
@@ -508,6 +510,7 @@ dialog::backdrop { background: #03080cd9; backdrop-filter: blur(7px); }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .hero-slide-content { transition: none; transform: none; }
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }

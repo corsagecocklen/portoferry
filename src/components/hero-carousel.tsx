@@ -59,14 +59,13 @@ function subscribeToVisibility(callback: () => void) {
 
 export function HeroCarousel({ available }: { available: boolean }) {
   const [active, setActive] = useState(0);
-  const [hovered, setHovered] = useState(false);
+  const [pausedByUser, setPausedByUser] = useState(false);
   const [keyboardFocused, setKeyboardFocused] = useState(false);
   const [inView, setInView] = useState(true);
   const section = useRef<HTMLElement>(null);
   const reducedMotion = useSyncExternalStore(subscribeToMotion, () => window.matchMedia("(prefers-reduced-motion: reduce)").matches, () => true);
   const pageVisible = useSyncExternalStore(subscribeToVisibility, () => document.visibilityState !== "hidden", () => false);
-  const rotating = !reducedMotion && !hovered && !keyboardFocused && inView && pageVisible;
-  const slide = slides[active];
+  const rotating = !reducedMotion && !pausedByUser && !keyboardFocused && inView && pageVisible;
 
   useEffect(() => {
     const observer = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), { threshold: 0.15 });
@@ -81,6 +80,7 @@ export function HeroCarousel({ available }: { available: boolean }) {
   }, [active, rotating]);
 
   function selectSlide(index: number) {
+    setPausedByUser(true);
     setActive((index + slides.length) % slides.length);
   }
 
@@ -92,8 +92,6 @@ export function HeroCarousel({ available }: { available: boolean }) {
       aria-roledescription="karusel"
       data-active-slide={active + 1}
       data-rotating={rotating}
-      onPointerEnter={event => { if (event.pointerType !== "touch") setHovered(true); }}
-      onPointerLeave={() => setHovered(false)}
       onPointerDownCapture={() => setKeyboardFocused(false)}
       onKeyDownCapture={() => setKeyboardFocused(true)}
       onFocusCapture={event => setKeyboardFocused(event.target.matches(":focus-visible"))}
@@ -107,18 +105,30 @@ export function HeroCarousel({ available }: { available: boolean }) {
       <div className="container hero-grid">
         <div className="hero-copy">
           <div className="hero-slide" id="hero-slide" aria-live={rotating ? "off" : "polite"} aria-atomic="true">
-            <div key={active} className="hero-slide-content" role="group" aria-roledescription="slide" aria-label={`${active + 1} dari ${slides.length}: ${slide.label}`}>
-              <div className="hero-intro"><span className="intro-line" />{slide.intro}<span className="wave" aria-hidden="true">✳</span></div>
-              <h1>{slide.title}<br /><em>{slide.accent}</em></h1>
-              <p className="hero-description">{slide.description}</p>
-              <div className="hero-actions">
-                <Link href={slide.href} className="button button-primary">{slide.cta}<ArrowUpRight size={19} /></Link>
-                <Link href="/proyek" className="text-link">Lihat hasil kerja<ArrowRight size={17} /></Link>
+            {slides.map((slide, index) => (
+              <div
+                key={slide.label}
+                className="hero-slide-content"
+                data-active={index === active}
+                aria-hidden={index !== active}
+                inert={index !== active}
+                role="group"
+                aria-roledescription="slide"
+                aria-label={`${index + 1} dari ${slides.length}: ${slide.label}`}
+              >
+                <div className="hero-intro"><span className="intro-line" />{slide.intro}<span className="wave" aria-hidden="true">✳</span></div>
+                <h1>{slide.title}<br /><em>{slide.accent}</em></h1>
+                <p className="hero-description">{slide.description}</p>
+                <div className="hero-actions">
+                  <Link href={slide.href} className="button button-primary">{slide.cta}<ArrowUpRight size={19} /></Link>
+                  <Link href="/proyek" className="text-link">Lihat hasil kerja<ArrowRight size={17} /></Link>
+                </div>
               </div>
-            </div>
+            ))}
           </div>
           <div className="hero-availability"><span className={available ? "status-dot" : "status-dot busy"} /><span>{available ? "Available for freelance projects" : "Let’s talk about your next project"}</span></div>
-          <div className="hero-carousel-controls">
+          <p id="hero-navigation-help" className="sr-only">Memilih slide menghentikan pergantian otomatis agar kamu bisa membaca.</p>
+          <div className="hero-carousel-controls" role="group" aria-label="Navigasi karusel" aria-describedby="hero-navigation-help">
             <div className="hero-slide-picker" role="group" aria-label="Pilih slide">
               {slides.map((item, index) => (
                 <button key={item.label} type="button" onClick={() => selectSlide(index)} aria-label={`Slide ${index + 1}: ${item.label}`} aria-pressed={index === active} aria-controls="hero-slide">

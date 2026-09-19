@@ -672,7 +672,7 @@
   display: grid;
   grid-template-columns: .85fr 1.4fr;
   gap: 95px;
-  margin-inline: calc((112px - 100vw) / 2);
+  margin-inline: calc((100% - 100vw) / 2);
   padding: 91px max(56px, calc((100vw - 1200px) / 2));
   border-block: 1px solid #ffffff06;
   background: #0d1419;
@@ -909,7 +909,6 @@
   }
 
   .processSection {
-    margin-inline: calc((72px - 100vw) / 2);
     padding-inline: 36px;
   }
 
@@ -1059,7 +1058,6 @@
 
   .processSection {
     display: block;
-    margin-inline: calc((44px - 100vw) / 2);
     padding: 63px 22px;
   }
 
