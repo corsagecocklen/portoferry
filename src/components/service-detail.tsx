@@ -88,11 +88,17 @@ export function ServiceDetail({
           <p className={styles.heroDescription}>{service.heroDescription}</p>
           <div className={styles.heroActions}>
             <Link className="button button-primary" href="#kontak">Mulai dari brief <ArrowUpRight size={18} /></Link>
-            <Link className={styles.inlineLink} href="/#layanan">Lihat layanan lain <ArrowRight size={16} /></Link>
+            <Link className={styles.inlineLink} href="#contoh-kerja">Lihat proyek <ArrowRight size={16} /></Link>
           </div>
           <p className={styles.heroNote}><span>✳</span>{service.heroNote}</p>
         </div>
         <div className={styles.heroVisual}><HeroVisual service={service} /></div>
+      </section>
+
+      <section className={styles.workSection} id="contoh-kerja">
+        <div className={styles.sectionHeader}><div><p className={styles.sectionEyebrow}>KARYA TERKAIT</p><h2>Contoh karya<br /><em>di bidang ini.</em></h2></div><Link className={styles.inlineLink} href="/proyek">Lihat semua proyek <ArrowUpRight size={16} /></Link></div>
+        {projects.length > 0 ? <div className={styles.projectGrid}>{projects.map((project, index) => <ProjectCard key={project.id} project={project} index={index} />)}</div> : <div className={styles.emptyProjects}><Layers3 size={22} /><p>Belum ada karya publik di kategori ini. Cerita dan kebutuhanmu tetap bisa kita mulai dari brief.</p></div>}
+        <p className={styles.projectDisclaimer}><span className={styles.disclaimerMark}>✳</span>{service.visual === "video" ? "Artwork video yang tampil adalah moodboard atau studi konsep, bukan video playable dan bukan klaim proyek klien." : "Karya bertanda Studi konsep adalah eksplorasi mandiri, bukan klaim proyek klien."}</p>
       </section>
 
       <section className={styles.signalBar} aria-label="Ringkasan layanan">
@@ -109,12 +115,6 @@ export function ServiceDetail({
       <section className={styles.processSection} id="proses">
         <div className={styles.processHeader}><p className={styles.sectionEyebrow}>CARA KERJA</p><h2>Begini cara<br /><em>kita bekerja.</em></h2><p>Kita sepakati bahan, hasil yang dibutuhkan, dan jadwal review sebelum pengerjaan dimulai.</p></div>
         <ol className={styles.processList}>{service.process.map((step, index) => <li key={step.title}><span className={styles.itemNumber}>0{index + 1}</span><div><h3>{step.title}</h3><p>{step.description}</p></div><ArrowRight size={19} /></li>)}</ol>
-      </section>
-
-      <section className={styles.workSection} id="contoh-kerja">
-        <div className={styles.sectionHeader}><div><p className={styles.sectionEyebrow}>KARYA TERKAIT</p><h2>Contoh karya<br /><em>di bidang ini.</em></h2></div><Link className={styles.inlineLink} href="/proyek">Lihat semua proyek <ArrowUpRight size={16} /></Link></div>
-        {projects.length > 0 ? <div className={styles.projectGrid}>{projects.map((project, index) => <ProjectCard key={project.id} project={project} index={index} />)}</div> : <div className={styles.emptyProjects}><Layers3 size={22} /><p>Belum ada karya publik di kategori ini. Cerita dan kebutuhanmu tetap bisa kita mulai dari brief.</p></div>}
-        <p className={styles.projectDisclaimer}><span className={styles.disclaimerMark}>✳</span>{service.visual === "video" ? "Artwork video yang tampil adalah moodboard atau studi konsep, bukan video playable dan bukan klaim proyek klien." : "Karya bertanda Studi konsep adalah eksplorasi mandiri, bukan klaim proyek klien."}</p>
       </section>
 
       <section className={styles.faqSection} id="faq">

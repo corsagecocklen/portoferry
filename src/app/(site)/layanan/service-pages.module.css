@@ -562,8 +562,7 @@
   line-height: 1;
 }
 
-.contentSection,
-.workSection {
+.contentSection {
   padding-block: 108px;
 }
 
@@ -725,7 +724,8 @@
 }
 
 .workSection {
-  padding-bottom: 93px;
+  padding-block: 56px 80px;
+  border-top: 1px solid var(--border);
 }
 
 .projectGrid {
@@ -912,6 +912,11 @@
     padding-inline: 36px;
   }
 
+  .projectGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+  }
+
   .faqSection,
   .terms,
   .serviceSwitch {
@@ -930,7 +935,7 @@
   }
 
   .backLink {
-    margin-top: 31px;
+    margin-top: 24px;
     font-size: 10px;
   }
 
@@ -938,9 +943,9 @@
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    gap: 40px;
+    gap: 28px;
     min-height: 0;
-    padding: 35px 0 61px;
+    padding: 28px 0 36px;
   }
 
   .heroCopy {
@@ -948,7 +953,7 @@
   }
 
   .hero h1 {
-    font-size: clamp(45px, 12vw, 68px);
+    font-size: clamp(40px, 10vw, 58px);
   }
 
   .heroDescription {
@@ -959,6 +964,10 @@
   .heroActions {
     gap: 19px;
     margin-top: 24px;
+  }
+
+  .heroActions .inlineLink {
+    min-height: 44px;
   }
 
   .heroNote {
@@ -974,25 +983,71 @@
   .videoVisual,
   .consultingVisual {
     width: min(100%, 430px);
-    height: min(115vw, 480px);
-    min-height: 390px;
+    height: 260px;
+    margin-top: 0;
+    box-shadow: 10px 10px 0 #0b1318;
+    transform: none;
+  }
+
+  .webVisual::after {
+    display: none;
+  }
+
+  .windowBar {
+    height: 38px;
   }
 
   .webCanvas {
-    padding-inline: 27px;
+    top: 38px;
+    padding: 20px 24px;
   }
 
   .webCanvasFooter {
-    right: 27px;
-    left: 27px;
+    right: 24px;
+    bottom: 22px;
+    left: 24px;
   }
 
   .webCanvasTitle {
-    margin-top: 57px;
+    margin-top: 24px;
+  }
+
+  .webCanvasRows {
+    gap: 5px;
+    margin-top: 20px;
+  }
+
+  .webCanvasRows span {
+    height: 3px;
   }
 
   .visualStamp {
+    bottom: -10px;
     left: 8px;
+    padding: 8px 10px;
+    font-size: 7px;
+  }
+
+  .videoFrame {
+    inset: 20px 20px 85px;
+  }
+
+  .conceptStamp {
+    top: 32px;
+    right: 32px;
+  }
+
+  .videoMeta {
+    right: 20px;
+    bottom: 56px;
+    left: 20px;
+    font-size: 10px;
+  }
+
+  .timeline {
+    right: 20px;
+    bottom: 24px;
+    left: 20px;
   }
 
   .signalBar {
@@ -1011,9 +1066,16 @@
     height: 32px;
   }
 
-  .contentSection,
-  .workSection {
+  .contentSection {
     padding-block: 66px;
+  }
+
+  .workSection {
+    padding-block: 32px 48px;
+  }
+
+  .workSection .sectionHeader {
+    margin-bottom: 24px;
   }
 
   .sectionHeader {
@@ -1022,7 +1084,8 @@
   }
 
   .sectionHeader .inlineLink {
-    margin-top: 22px;
+    min-height: 44px;
+    margin-top: 12px;
   }
 
   .sectionHeader h2,
@@ -1084,8 +1147,7 @@
   }
 
   .projectGrid {
-    grid-template-columns: 1fr;
-    gap: 38px;
+    gap: 28px;
   }
 
   .projectDisclaimer {
@@ -1126,9 +1188,16 @@
   }
 }
 
+@media (max-width: 599px) {
+  .projectGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 420px) {
-  .heroActions .button {
-    width: 100%;
+  .heroActions :global(.button) {
+    gap: 12px;
+    padding-inline: 18px;
   }
 
   .heroActions .inlineLink {

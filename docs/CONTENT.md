@@ -21,7 +21,7 @@ Prinsip penulisan mengikuti [No AI Slop](https://github.com/petergyang/no-ai-slo
 | Area | Sumber konten | Kapan tampil |
 | --- | --- | --- |
 | Hero | `src/components/hero-carousel.tsx` | Empat slide dengan pergantian otomatis setiap 3 detik dan satu foto yang sama. Nomor slide dan panah tetap tersedia, tanpa tombol play/pause. |
-| Halaman layanan | `src/lib/services.ts` | Web Development, Video Editing, dan IT Consulting masing-masing punya halaman, FAQ, serta brief yang sudah memilih layanan terkait. |
+| Halaman layanan | `src/lib/services.ts` | Web Development, Video Editing, dan IT Consulting menampilkan feed karya sesuai kategori tepat setelah pembuka, lalu cakupan, proses, FAQ, dan brief yang sudah memilih layanan terkait. Tautan “Lihat proyek” langsung menuju feed; ilustrasi pembuka lebih ringkas di mobile. |
 | Latest Feed di beranda | `projects` | Semua proyek `published` dari seluruh kategori, diurutkan menurut `created_at` dari yang terbaru, tanpa batas tiga kartu. |
 | Katalog `/proyek` | `projects` | Semua proyek `published`, termasuk Graphic Design dan AI Consulting. |
 | Detail `/proyek/[slug]` | `projects` | Satu proyek `published` dengan slug yang sesuai. |

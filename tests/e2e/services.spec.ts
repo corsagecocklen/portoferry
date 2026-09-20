@@ -17,6 +17,8 @@ const serviceLayoutSelectors = [
   'nav[aria-label="Layanan lainnya"]',
 ].map((selector) => `main[data-service] ${selector}`).join(", ");
 
+const directServiceSections = "main[data-service] > div > section";
+
 async function expectServiceLayoutWithinViewport(page: Page, width: number) {
   const boxes = await page.locator(serviceLayoutSelectors).evaluateAll((elements) => elements.map((element) => {
     const rect = element.getBoundingClientRect();
@@ -27,6 +29,20 @@ async function expectServiceLayoutWithinViewport(page: Page, width: number) {
   for (const box of boxes) {
     expect(box.left, `${box.name} starts outside the ${width}px viewport`).toBeGreaterThanOrEqual(-0.5);
     expect(box.right, `${box.name} ends outside the ${width}px viewport`).toBeLessThanOrEqual(width + 0.5);
+  }
+}
+
+async function expectServiceFeedOrder(page: Page) {
+  const sections = page.locator(directServiceSections);
+  await expect(sections.nth(0).getByRole("heading", { level: 1 })).toBeVisible();
+  await expect(page.locator(`${directServiceSections}:nth-of-type(2)#contoh-kerja`)).toHaveCount(1);
+  await expect(sections.nth(1)).toHaveAttribute("id", "contoh-kerja");
+  await expect(sections.nth(2)).toHaveAttribute("aria-label", "Ringkasan layanan");
+  await expect(sections.nth(3)).toHaveAttribute("id", "cakupan");
+
+  const tops = await sections.evaluateAll((elements) => elements.slice(0, 4).map((element) => element.getBoundingClientRect().top));
+  for (let index = 1; index < tops.length; index += 1) {
+    expect(tops[index], `Service section ${index + 1} should follow section ${index}`).toBeGreaterThanOrEqual(tops[index - 1] - 0.5);
   }
 }
 
@@ -44,6 +60,44 @@ for (const service of serviceRoutes) {
     await expect(page.getByRole("link", { name: "Kembali ke semua layanan" })).toHaveAttribute("href", "/#layanan");
   });
 }
+
+test("service pages place the project feed directly after the hero", async ({ page }) => {
+  for (const service of serviceRoutes) {
+    await page.goto(`/layanan/${service.slug}`);
+    await page.evaluate(() => document.fonts.ready);
+    await expectServiceFeedOrder(page);
+  }
+});
+
+test("mobile service project CTA brings the heading into view and opens a project", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 900 });
+
+  for (const service of serviceRoutes) {
+    await page.goto(`/layanan/${service.slug}`);
+    await page.evaluate(() => document.fonts.ready);
+    const projectCta = page.getByRole("link", { name: "Lihat proyek", exact: true });
+    await expect(projectCta).toHaveAttribute("href", "#contoh-kerja");
+    await projectCta.click();
+    await expect(page).toHaveURL(new RegExp(`/layanan/${service.slug}#contoh-kerja$`));
+
+    const projectSection = page.locator("#contoh-kerja");
+    const projectHeading = projectSection.getByRole("heading", { level: 2 });
+    await expect(projectHeading).toBeInViewport();
+    await expect.poll(() => projectHeading.evaluate((element) => {
+      const heading = element.getBoundingClientRect();
+      const header = document.querySelector(".site-header")!.getBoundingClientRect();
+      return heading.top >= Math.max(0, header.bottom) && heading.bottom <= innerHeight;
+    })).toBe(true);
+
+    const firstProject = demoProjects.find(project => project.published && project.category === service.title);
+    expect(firstProject).toBeDefined();
+    const projectLink = page.getByRole("link", { name: `Lihat proyek ${firstProject!.title}`, exact: true });
+    await expect(projectLink).toHaveAttribute("href", `/proyek/${firstProject!.slug}`);
+    await projectLink.click();
+    await expect(page).toHaveURL(new RegExp(`/proyek/${firstProject!.slug}$`));
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(firstProject!.title);
+  }
+});
 
 test("service pages link to each other and preselect the contextual contact category", async ({ page }) => {
   for (const service of serviceRoutes) {
@@ -103,15 +157,23 @@ for (const service of serviceRoutes) {
   test(`${service.title} is responsive and passes accessibility basics`, async ({ page }) => {
     await page.goto(`/layanan/${service.slug}`);
     await page.evaluate(() => document.fonts.ready);
-    for (const width of [320, 375, 390, 400, 430, 768, 1024, 1440]) {
+    const expectedProjects = demoProjects.filter(project => project.published && project.category === service.title);
+    const projectCards = page.locator(".project-card");
+    for (const width of [320, 375, 390, 400, 430, 600, 760, 761, 768, 1024, 1440]) {
       await page.setViewportSize({ width, height: 900 });
+      await page.evaluate(() => document.fonts.ready);
+      await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
       await expectServiceLayoutWithinViewport(page, width);
+      await expectServiceFeedOrder(page);
+      await expect(projectCards).toHaveCount(expectedProjects.length);
+      if (width <= 430) {
+        const firstProjectTop = await projectCards.first().evaluate(element => element.getBoundingClientRect().top + scrollY);
+        expect(firstProjectTop, `First project card should stay compact at ${width}px`).toBeLessThanOrEqual(1250);
+      }
     }
     const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze();
     expect(results.violations).toEqual([]);
-    const expectedProjects = demoProjects.filter(project => project.published && project.category === service.title);
-    await expect(page.locator(".project-card")).toHaveCount(expectedProjects.length);
     for (const project of expectedProjects) {
       const card = page.locator(".project-card").filter({ has: page.getByRole("link", { name: `Lihat proyek ${project.title}`, exact: true }) });
       if (project.is_concept) await expect(card).toContainText("Studi konsep");
