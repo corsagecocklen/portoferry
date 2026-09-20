@@ -136,7 +136,7 @@ Lakukan checklist ini menggunakan project dan akun nyata:
 - [ ] User Auth di luar allowlist ditolak; akses tanpa login tidak boleh menulis proyek, pengaturan, atau Storage.
 - [ ] RLS aktif di tiga tabel; Security Advisor dan policy Storage sudah diperiksa pada project nyata.
 - [ ] Proyek draft tidak muncul di `/` atau `/proyek`.
-- [ ] Proyek published muncul di `/proyek`; proyek published + featured di kategori utama dapat masuk feed beranda.
+- [ ] Proyek published muncul di `/proyek`; feed beranda memprioritaskan unggulan dan mengisi slot yang tersisa dari proyek published kategori utama tanpa wajib ditandai unggulan, maksimal tiga. Draft tetap tidak tampil.
 - [ ] Upload gambar JPG/PNG/WebP maksimal 5 MB berhasil di bucket `project-images`.
 - [ ] Pengaturan kontak diuji dengan data nyata, lalu link domain apex dan `www` mengarah sesuai status Domains Vercel.
 - [ ] SSL/HTTPS dan metadata canonical memakai `NEXT_PUBLIC_SITE_URL` yang benar.

@@ -88,6 +88,31 @@ test("mobile menu supports keyboard dismissal and routes without horizontal over
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
+test("project editor explains optional feed priority and catalog-only categories without publishing drafts", async ({ page }) => {
+  await page.goto("/admin/demo");
+  await page.getByRole("button", { name: "Tambah proyek", exact: true }).click();
+  const editor = page.getByRole("dialog");
+  const featured = editor.getByRole("checkbox", { name: /^Unggulan/ });
+  const published = editor.getByRole("checkbox", { name: /^Tandai terbit/ });
+
+  await expect(featured).not.toBeChecked();
+  await expect(published).not.toBeChecked();
+  for (const category of ["Web Development", "IT Consulting", "Video Editing"]) {
+    await editor.locator("#project-category").selectOption(category);
+    await expect(editor.getByText("Dahulukan di Latest Feed setelah terbit. Tidak wajib dicentang agar bisa tampil.")).toBeVisible();
+  }
+
+  await featured.check();
+  await expect(published).not.toBeChecked();
+  for (const category of ["Graphic Design", "AI Consulting"]) {
+    await editor.locator("#project-category").selectOption(category);
+    await expect(editor.getByText("Kategori ini tampil di katalog, bukan Latest Feed; Unggulan hanya penanda pilihan.")).toBeVisible();
+    await expect(published).not.toBeChecked();
+  }
+  await editor.getByRole("button", { name: "Batal", exact: true }).click();
+  await expect(editor).not.toBeVisible();
+});
+
 test("admin demo supports validated create, upload, persistent edit, and delete without public writes", async ({ page }) => {
   await page.goto("/admin");
   await expect(page.getByRole("link", { name: /demo/i }).first()).toBeVisible();

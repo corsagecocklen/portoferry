@@ -4,6 +4,7 @@ import { ImagePlus, LoaderCircle, Save, Upload, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 
 import { ProjectCard } from "@/components/project-card";
+import { isHomeFeedCategory } from "@/lib/project-feed";
 import { categories, type Project, type ProjectInput } from "@/lib/types";
 
 import {
@@ -336,7 +337,7 @@ export function ProjectEditorDialog({
             <fieldset className="admin-check-fieldset">
               <legend>Status proyek</legend>
               <label className="admin-check-item"><input type="checkbox" checked={draft.published} onChange={(event) => updateField("published", event.target.checked)} /> <span><strong>{mode === "demo" ? "Tandai terbit (demo)" : "Terbitkan"}</strong><small>{mode === "demo" ? "Status hanya untuk catatan lokal; tidak tampil di situs publik." : "Proyek dapat tampil di situs publik setelah disimpan."}</small></span></label>
-              <label className="admin-check-item"><input type="checkbox" checked={draft.featured} onChange={(event) => updateField("featured", event.target.checked)} /> <span><strong>Unggulan</strong><small>Tandai untuk area karya pilihan.</small></span></label>
+              <label className="admin-check-item"><input type="checkbox" checked={draft.featured} onChange={(event) => updateField("featured", event.target.checked)} /> <span><strong>Unggulan</strong><small>{isHomeFeedCategory(draft.category) ? "Dahulukan di Latest Feed setelah terbit. Tidak wajib dicentang agar bisa tampil." : "Kategori ini tampil di katalog, bukan Latest Feed; Unggulan hanya penanda pilihan."}</small></span></label>
               <label className="admin-check-item"><input type="checkbox" checked={draft.is_concept} onChange={(event) => updateField("is_concept", event.target.checked)} /> <span><strong>Studi konsep</strong><small>Jelaskan bahwa karya ini adalah eksplorasi, bukan klaim proyek klien.</small></span></label>
             </fieldset>
 

@@ -5,6 +5,7 @@ import { ContactSection } from "@/components/contact-section";
 import { HeroCarousel } from "@/components/hero-carousel";
 import { ProjectCard } from "@/components/project-card";
 import { getPublicProjects, getSiteSettings } from "@/lib/data";
+import { selectHomeFeedProjects } from "@/lib/project-feed";
 import { services } from "@/lib/services";
 
 const serviceSummaries = {
@@ -23,7 +24,7 @@ const faqs = [
 
 export default async function HomePage() {
   const [projects, settings] = await Promise.all([getPublicProjects(), getSiteSettings()]);
-  const recent = projects.filter(p => p.featured && ["Web Development", "IT Consulting", "Video Editing"].includes(p.category)).slice(0, 3);
+  const recent = selectHomeFeedProjects(projects);
 
   return <main id="main">
     <HeroCarousel available={settings.available} />

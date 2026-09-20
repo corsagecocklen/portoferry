@@ -22,12 +22,12 @@ Prinsip penulisan mengikuti [No AI Slop](https://github.com/petergyang/no-ai-slo
 | --- | --- | --- |
 | Hero | `src/components/hero-carousel.tsx` | Empat slide dengan pergantian otomatis setiap 3 detik dan satu foto yang sama. Nomor slide dan panah tetap tersedia, tanpa tombol play/pause. |
 | Halaman layanan | `src/lib/services.ts` | Web Development, Video Editing, dan IT Consulting masing-masing punya halaman, FAQ, serta brief yang sudah memilih layanan terkait. |
-| Feed “karya terbaru” di beranda | `projects` | Hanya proyek `published` + `featured` dari Web Development, IT Consulting, atau Video Editing; maksimal tiga sesuai urutan. |
+| Feed “karya terbaru” di beranda | `projects` | Proyek `published` dari Web Development, IT Consulting, atau Video Editing; unggulan didahulukan, lalu slot yang tersisa diisi proyek terbit lainnya. Maksimal tiga. |
 | Katalog `/proyek` | `projects` | Semua proyek `published`, termasuk Graphic Design dan AI Consulting. |
 | Detail `/proyek/[slug]` | `projects` | Satu proyek `published` dengan slug yang sesuai. |
 | Status/kontak | `site_settings` | Dibaca publik; WhatsApp, email, dan Instagram boleh kosong. |
 
-Pengunjung tidak melihat proyek draft. Status `featured` bukan pengganti `published`: proyek harus dipublish lebih dahulu agar dapat tampil.
+Pengunjung tidak melihat proyek draft. Status `published` tetap wajib; `featured` memberi prioritas, bukan syarat masuk feed. Di dalam kelompok unggulan maupun non-unggulan, urutan mengikuti `sort_order` dari yang terkecil, lalu `created_at` dari yang terbaru. Graphic Design dan AI Consulting tetap hanya tampil di katalog.
 
 Hover pointer tidak menghentikan rotasi hero. Setelah panah atau nomor slide dipilih lewat klik, keyboard, atau sentuhan, pergantian otomatis berhenti sampai hero dimuat ulang; navigasi manual tetap tersedia. Tanpa pemilihan manual, hero berhenti sementara saat mendapat fokus keyboard, berada di luar layar, atau tab browser disembunyikan, lalu melanjutkan rotasi saat kondisi itu berakhir. Preferensi reduced motion mematikan rotasi dan transisi. Teks berganti dengan crossfade tanpa menggeser kontrol, sementara foto `ferry-landing.webp` tetap sama. Teks hero dan halaman layanan saat ini dikelola di kode, bukan panel admin.
 
@@ -45,7 +45,7 @@ Hover pointer tidak menghentikan rotasi hero. Setelah panah atau nomor slide dip
 3. Isi field sesuai aturan berikut.
 4. Gunakan **Preview** untuk mengecek kartu.
 5. Simpan sebagai draft untuk review; centang **Terbitkan** hanya ketika teks dan aset sudah siap.
-6. Centang **Unggulan** jika proyek boleh masuk feed beranda. Untuk Graphic Design/AI Consulting, `featured` tetap berguna sebagai penanda internal tetapi tidak memasukkannya ke feed utama saat ini.
+6. Centang **Unggulan** untuk mendahulukan proyek di feed beranda. Proyek terbit dari kategori utama tetap dapat mengisi slot yang tersisa tanpa centang ini. Untuk Graphic Design/AI Consulting, `featured` hanya menjadi penanda internal dan tidak memasukkannya ke feed beranda.
 7. Centang **Studi konsep** untuk eksplorasi mandiri, moodboard, atau ilustrasi yang bukan proyek klien. Label tersebut tampil di kartu dan halaman detail.
 
 ### Field dan batas validasi
@@ -61,7 +61,7 @@ Hover pointer tidak menghentikan rotasi hero. Setelah panah atau nomor slide dip
 | `project_url` | Opsional; kosong atau URL HTTPS maksimal 2.048 karakter. | Tautkan hasil yang boleh dilihat publik; jangan menautkan footage privat. |
 | `year` | Bilangan bulat 1900–2200. | Tahun pengerjaan atau tahun studi konsep. |
 | `tags` | Maksimal 20 tag, tiap tag maksimal 32 karakter, tidak boleh duplikat. | Pisahkan dengan koma, misalnya `Next.js, Landing page`. |
-| `featured` | Boolean. | Kandidat feed beranda bila kategori utama dan sudah published. |
+| `featured` | Boolean. | Prioritas feed beranda bila kategori utama dan sudah published; bukan syarat wajib tampil. |
 | `published` | Boolean. | Akses publik hanya untuk `true`. |
 | `is_concept` | Boolean. | Aktifkan untuk karya konsep/non-klien. |
 | `sort_order` | Bilangan bulat 0–100.000; angka kecil tampil lebih dulu. | Sisakan jarak, misalnya 10, 20, 30, agar mudah menyisipkan karya. |
