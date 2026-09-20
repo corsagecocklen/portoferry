@@ -6,12 +6,35 @@ test("landing page prioritizes web, IT, and video with working navigation and FA
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Website siap.Bisnis jalan.");
   await expect(page.locator(".service-row")).toHaveCount(3);
-  await expect(page.locator(".home-project-grid .project-card")).toHaveCount(3);
+  await expect(page.locator(".home-project-grid .project-card")).toHaveCount(6);
   await page.getByRole("link", { name: "Lihat syaratnya" }).click();
   await page.locator("summary").filter({ hasText: "Beneran bisa" }).click();
   await expect(page.locator("details[open]")).toContainText("setelah semua bahan dan lingkup disepakati");
   await page.getByRole("link", { name: "Lihat hasil kerja" }).click();
   await expect(page).toHaveURL(/\/proyek$/);
+});
+
+test("Latest Feed includes every published category newest first and opens Graphic Design work", async ({ page }) => {
+  await page.goto("/");
+  const feed = page.locator(".home-project-grid");
+  await expect(feed.locator(".project-card")).toHaveCount(6);
+  await expect(feed.locator(".post-subtitle")).toHaveText([
+    "Web Development", "Web Development", "Video Editing", "Graphic Design", "IT Consulting", "AI Consulting",
+  ]);
+  const dates = await feed.locator("time").evaluateAll(elements => elements.map(element => Date.parse((element as HTMLTimeElement).dateTime)));
+  expect(dates).toEqual([...dates].sort((a, b) => b - a));
+  await feed.getByRole("link", { name: "Lihat proyek A face behind the pixels.", exact: true }).click();
+  await expect(page).toHaveURL(/\/proyek\/creative-profile$/);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("A face behind the pixels.");
+});
+
+test("Latest Feed never hides a project at mobile, two-column, or desktop widths", async ({ page }) => {
+  await page.goto("/");
+  const cards = page.locator(".home-project-grid .project-card:visible");
+  for (const width of [320, 390, 539, 540, 640, 760, 761, 1024, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    await expect(cards, `Every feed card must remain visible at ${width}px`).toHaveCount(6);
+  }
 });
 
 test("gallery filters every category, searches, and opens a real project detail", async ({ page }) => {
@@ -88,25 +111,21 @@ test("mobile menu supports keyboard dismissal and routes without horizontal over
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
-test("project editor explains optional feed priority and catalog-only categories without publishing drafts", async ({ page }) => {
+test("admin removes featured controls while keeping new projects in draft for every category", async ({ page }) => {
   await page.goto("/admin/demo");
+  await expect(page.getByText("Unggulan", { exact: true })).toHaveCount(0);
+  await expect(page.locator(".admin-stat-card")).toHaveCount(3);
   await page.getByRole("button", { name: "Tambah proyek", exact: true }).click();
   const editor = page.getByRole("dialog");
-  const featured = editor.getByRole("checkbox", { name: /^Unggulan/ });
   const published = editor.getByRole("checkbox", { name: /^Tandai terbit/ });
 
-  await expect(featured).not.toBeChecked();
+  await expect(editor.getByRole("checkbox", { name: /Unggulan/ })).toHaveCount(0);
+  await expect(editor.getByRole("checkbox")).toHaveCount(2);
+  await expect(editor.getByRole("spinbutton", { name: /Urutan.*katalog/ })).toHaveValue("0");
   await expect(published).not.toBeChecked();
-  for (const category of ["Web Development", "IT Consulting", "Video Editing"]) {
+  for (const category of ["Web Development", "IT Consulting", "Video Editing", "Graphic Design", "AI Consulting"]) {
     await editor.locator("#project-category").selectOption(category);
-    await expect(editor.getByText("Dahulukan di Latest Feed setelah terbit. Tidak wajib dicentang agar bisa tampil.")).toBeVisible();
-  }
-
-  await featured.check();
-  await expect(published).not.toBeChecked();
-  for (const category of ["Graphic Design", "AI Consulting"]) {
-    await editor.locator("#project-category").selectOption(category);
-    await expect(editor.getByText("Kategori ini tampil di katalog, bukan Latest Feed; Unggulan hanya penanda pilihan.")).toBeVisible();
+    await expect(editor.locator("#project-category")).toHaveValue(category);
     await expect(published).not.toBeChecked();
   }
   await editor.getByRole("button", { name: "Batal", exact: true }).click();

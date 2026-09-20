@@ -41,7 +41,6 @@ const projectInput: ProjectInput = {
   project_url: "https://example.com/work",
   year: 2026,
   tags: ["Next.js", "Supabase"],
-  featured: true,
   published: true,
   is_concept: false,
   sort_order: 0,

@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import { demoProjects } from "@/lib/demo-data";
-import { isHomeFeedCategory, selectHomeFeedProjects } from "@/lib/project-feed";
-import type { Project } from "@/lib/types";
+import { selectHomeFeedProjects } from "@/lib/project-feed";
+import { categories, type Project } from "@/lib/types";
 
 function makeProject(id: string, overrides: Partial<Project> = {}): Project {
   return {
@@ -12,69 +12,73 @@ function makeProject(id: string, overrides: Partial<Project> = {}): Project {
     title: id,
     category: "Web Development",
     published: true,
-    featured: false,
     ...overrides,
   };
 }
 
 describe("homepage project feed", () => {
-  it.each(["Web Development", "IT Consulting", "Video Editing"] as const)(
-    "includes published %s projects without requiring featured",
+  it.each(categories)(
+    "includes published %s projects without category restrictions",
     (category) => {
       const project = makeProject("published-project", { category });
 
-      expect(isHomeFeedCategory(category)).toBe(true);
       expect(selectHomeFeedProjects([project])).toEqual([project]);
     },
   );
 
-  it("shows unfeatured web work when the other published project is catalog-only", () => {
-    const design = makeProject("catalog-project", { category: "Graphic Design", sort_order: 1 });
-    const web = makeProject("web-project", { sort_order: 2 });
+  it("shows both design and web projects newest first despite their catalog order", () => {
+    const design = makeProject("design-project", { category: "Graphic Design", sort_order: 1, created_at: "2026-09-19T11:00:00Z" });
+    const web = makeProject("web-project", { sort_order: 2, created_at: "2026-09-19T12:00:00Z" });
 
-    expect(selectHomeFeedProjects([design, web])).toEqual([web]);
+    expect(selectHomeFeedProjects([design, web])).toEqual([web, design]);
   });
 
-  it("prioritizes featured work and fills remaining slots while preserving order within each group", () => {
-    const first = makeProject("first");
-    const second = makeProject("second", { featured: true });
-    const third = makeProject("third");
-    const fourth = makeProject("fourth", { featured: true });
-    const projects = Object.freeze([first, second, third, fourth]);
+  it("sorts by creation time without mutating the supplied project order", () => {
+    const oldest = makeProject("oldest", { created_at: "2026-09-01T00:00:00Z" });
+    const newest = makeProject("newest", { created_at: "2026-09-20T00:00:00Z" });
+    const middle = makeProject("middle", { created_at: "2026-09-10T00:00:00Z" });
+    const projects = Object.freeze([oldest, newest, middle]);
 
-    expect(selectHomeFeedProjects(projects)).toEqual([second, fourth, first]);
-    expect(projects).toEqual([first, second, third, fourth]);
+    expect(selectHomeFeedProjects(projects)).toEqual([newest, middle, oldest]);
+    expect(projects).toEqual([oldest, newest, middle]);
   });
 
-  it("limits an entirely unfeatured feed to three projects in the supplied order", () => {
-    const projects = Array.from({ length: 4 }, (_, index) => makeProject(`project-${index}`));
+  it("includes every published project rather than limiting the feed to three cards", () => {
+    const projects = Array.from({ length: 8 }, (_, index) => makeProject(`project-${index}`, {
+      category: categories[index % categories.length],
+      created_at: new Date(Date.UTC(2026, 8, index + 1)).toISOString(),
+    }));
 
-    expect(selectHomeFeedProjects(projects)).toEqual(projects.slice(0, 3));
+    expect(selectHomeFeedProjects(projects)).toEqual([...projects].reverse());
   });
 
-  it("keeps the first three featured projects when all slots are already curated", () => {
-    const featured = Array.from({ length: 4 }, (_, index) => makeProject(`featured-${index}`, { featured: true }));
+  it("ignores legacy featured flags and manual catalog order", () => {
+    const older = { ...makeProject("older", { sort_order: 0, created_at: "2026-09-01T00:00:00Z" }), featured: true };
+    const newer = { ...makeProject("newer", { sort_order: 100, created_at: "2026-09-20T00:00:00Z" }), featured: false };
 
-    expect(selectHomeFeedProjects([makeProject("unfeatured"), ...featured])).toEqual(featured.slice(0, 3));
+    expect(selectHomeFeedProjects([older, newer])).toEqual([newer, older]);
   });
 
-  it("excludes drafts before selecting or limiting the feed, even when featured", () => {
-    const drafts = Array.from({ length: 3 }, (_, index) => makeProject(`draft-${index}`, { published: false, featured: index !== 0 }));
-    const published = makeProject("published");
+  it("compares timestamps by their actual time rather than their timezone text", () => {
+    const earlier = makeProject("earlier", { created_at: "2026-09-20T08:00:00+07:00" });
+    const later = makeProject("later", { created_at: "2026-09-20T02:00:00Z" });
+
+    expect(selectHomeFeedProjects([earlier, later])).toEqual([later, earlier]);
+  });
+
+  it("keeps equal timestamps in a stable order", () => {
+    const projects = [makeProject("first"), makeProject("second")];
+
+    expect(selectHomeFeedProjects(projects)).toEqual(projects);
+  });
+
+  it("excludes drafts in every category, including drafts newer than published work", () => {
+    const drafts = categories.map((category, index) => makeProject(`draft-${index}`, { category, published: false, created_at: "2026-09-20T00:00:00Z" }));
+    const published = makeProject("published", { category: "Graphic Design", created_at: "2026-09-01T00:00:00Z" });
 
     expect(selectHomeFeedProjects([...drafts, published])).toEqual([published]);
     expect(selectHomeFeedProjects(drafts)).toEqual([]);
   });
-
-  it.each(["Graphic Design", "AI Consulting"] as const)(
-    "keeps %s in the catalog regardless of featured status",
-    (category) => {
-      const projects = [false, true].map((featured) => makeProject(`catalog-${featured}`, { category, featured }));
-
-      expect(isHomeFeedCategory(category)).toBe(false);
-      expect(selectHomeFeedProjects(projects)).toEqual([]);
-    },
-  );
 
   it("returns no cards when there are no projects", () => {
     expect(selectHomeFeedProjects([])).toEqual([]);

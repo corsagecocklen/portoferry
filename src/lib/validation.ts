@@ -207,7 +207,6 @@ export const projectSchema = z
       .array(z.string().trim().min(1, "Tag tidak boleh kosong.").max(32, "Tag maksimal 32 karakter."))
       .max(20, "Maksimal 20 tag.")
       .refine((tags) => new Set(tags).size === tags.length, "Tag tidak boleh duplikat."),
-    featured: z.boolean(),
     published: z.boolean(),
     is_concept: z.boolean(),
     sort_order: z.number().int("Urutan harus berupa angka bulat.").min(0).max(100_000),

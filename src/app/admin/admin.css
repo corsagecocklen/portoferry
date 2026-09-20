@@ -693,10 +693,6 @@
   color: #4f5b62;
 }
 
-.admin-route .admin-project-meta .admin-featured-label {
-  color: var(--admin-accent);
-}
-
 .admin-route .admin-project-actions {
   display: flex;
   gap: 3px;

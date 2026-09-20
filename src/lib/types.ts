@@ -19,7 +19,6 @@ export type Project = {
   project_url: string;
   year: number;
   tags: string[];
-  featured: boolean;
   published: boolean;
   is_concept: boolean;
   sort_order: number;

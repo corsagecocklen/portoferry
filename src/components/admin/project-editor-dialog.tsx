@@ -4,7 +4,6 @@ import { ImagePlus, LoaderCircle, Save, Upload, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 
 import { ProjectCard } from "@/components/project-card";
-import { isHomeFeedCategory } from "@/lib/project-feed";
 import { categories, type Project, type ProjectInput } from "@/lib/types";
 
 import {
@@ -322,8 +321,9 @@ export function ProjectEditorDialog({
                 <FieldError id="project-url-error" message={errors.project_url} />
               </label>
               <label className="field" htmlFor="project-order">
-                Urutan tampil
-                <input id="project-order" type="number" inputMode="numeric" min={0} value={Number.isNaN(draft.sort_order) ? "" : draft.sort_order} onChange={(event) => updateField("sort_order", event.target.value === "" ? Number.NaN : Number(event.target.value))} aria-invalid={Boolean(errors.sort_order)} aria-describedby={errors.sort_order ? "project-order-error" : undefined} />
+                Urutan katalog
+                <input id="project-order" type="number" inputMode="numeric" min={0} value={Number.isNaN(draft.sort_order) ? "" : draft.sort_order} onChange={(event) => updateField("sort_order", event.target.value === "" ? Number.NaN : Number(event.target.value))} aria-invalid={Boolean(errors.sort_order)} aria-describedby={errors.sort_order ? "project-order-help project-order-error" : "project-order-help"} />
+                <span id="project-order-help" className="admin-field-help">Mengatur urutan katalog saja. Latest Feed selalu menampilkan proyek terbit terbaru.</span>
                 <FieldError id="project-order-error" message={errors.sort_order} />
               </label>
             </div>
@@ -336,8 +336,7 @@ export function ProjectEditorDialog({
 
             <fieldset className="admin-check-fieldset">
               <legend>Status proyek</legend>
-              <label className="admin-check-item"><input type="checkbox" checked={draft.published} onChange={(event) => updateField("published", event.target.checked)} /> <span><strong>{mode === "demo" ? "Tandai terbit (demo)" : "Terbitkan"}</strong><small>{mode === "demo" ? "Status hanya untuk catatan lokal; tidak tampil di situs publik." : "Proyek dapat tampil di situs publik setelah disimpan."}</small></span></label>
-              <label className="admin-check-item"><input type="checkbox" checked={draft.featured} onChange={(event) => updateField("featured", event.target.checked)} /> <span><strong>Unggulan</strong><small>{isHomeFeedCategory(draft.category) ? "Dahulukan di Latest Feed setelah terbit. Tidak wajib dicentang agar bisa tampil." : "Kategori ini tampil di katalog, bukan Latest Feed; Unggulan hanya penanda pilihan."}</small></span></label>
+              <label className="admin-check-item"><input type="checkbox" checked={draft.published} onChange={(event) => updateField("published", event.target.checked)} /> <span><strong>{mode === "demo" ? "Tandai terbit (demo)" : "Terbitkan"}</strong><small>{mode === "demo" ? "Status hanya untuk catatan lokal; tidak tampil di situs publik." : "Setelah disimpan sebagai terbit, proyek muncul di katalog dan Latest Feed semua kategori."}</small></span></label>
               <label className="admin-check-item"><input type="checkbox" checked={draft.is_concept} onChange={(event) => updateField("is_concept", event.target.checked)} /> <span><strong>Studi konsep</strong><small>Jelaskan bahwa karya ini adalah eksplorasi, bukan klaim proyek klien.</small></span></label>
             </fieldset>
 

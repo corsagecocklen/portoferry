@@ -502,7 +502,6 @@ dialog::backdrop { background: #03080cd9; backdrop-filter: blur(7px); }
   .hero h1 { font-size: 75px; }
   .hero-visual { max-width: 450px; margin-inline: auto; }
   .home-project-grid, .projects-body .project-grid, .related-projects .project-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 30px 20px; }
-  .home-project-grid > :last-child { display: none; }
   .post-footnote { flex-direction: column; }
   .post-detail { font-size: 8px; }
   .project-title { font-size: 12px; }

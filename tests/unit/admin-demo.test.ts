@@ -17,6 +17,12 @@ describe("admin project helpers", () => {
     expect(textToTags("Next.js, React, Next.js, , ")).toEqual(["Next.js", "React"]);
   });
 
+  it("does not carry the legacy featured field into editor input", () => {
+    const legacyProject = { ...demoProjects[0], featured: true };
+
+    expect(projectToInput(legacyProject)).not.toHaveProperty("featured");
+  });
+
   it("accepts uploaded demo images larger than a URL, but never in live mode", () => {
     const input = { ...projectToInput(demoProjects[0]), image_url: `data:image/jpeg;base64,${"A".repeat(8000)}` };
     expect(validateProjectInput(input, "demo")).toEqual({});
@@ -61,6 +67,17 @@ describe("atomic demo persistence", () => {
     storage();
     writeDemoSnapshot([], defaultSettings);
     expect(readDemoSnapshot(demoProjects, defaultSettings).projects).toEqual([]);
+  });
+
+  it("loads older demo records while ignoring the legacy featured property", () => {
+    const { getItem } = storage();
+    const legacyProjects = demoProjects.map((project) => ({ ...project, featured: true }));
+    getItem.mockReturnValue(JSON.stringify({ projects: legacyProjects, settings: defaultSettings }));
+
+    const snapshot = readDemoSnapshot([], defaultSettings);
+
+    expect(snapshot.projects).toEqual(demoProjects);
+    expect(snapshot.projects[0]).not.toHaveProperty("featured");
   });
 
   it("recovers from corrupt or structurally invalid storage", () => {

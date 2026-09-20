@@ -1,22 +1,7 @@
-import type { Category, Project } from "./types";
-
-const homeFeedCategories = new Set<Category>([
-  "Web Development",
-  "IT Consulting",
-  "Video Editing",
-]);
-
-export function isHomeFeedCategory(category: Category): boolean {
-  return homeFeedCategories.has(category);
-}
+import type { Project } from "./types";
 
 export function selectHomeFeedProjects(projects: readonly Project[]): Project[] {
-  const eligible = projects.filter(
-    (project) => project.published && isHomeFeedCategory(project.category),
-  );
-
-  return [
-    ...eligible.filter((project) => project.featured),
-    ...eligible.filter((project) => !project.featured),
-  ].slice(0, 3);
+  return projects
+    .filter((project) => project.published)
+    .sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at));
 }

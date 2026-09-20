@@ -16,7 +16,6 @@ function validProject(overrides: Partial<ProjectInput> = {}): ProjectInput {
     project_url: "",
     year: 2026,
     tags: ["Next.js", "Supabase"],
-    featured: true,
     published: true,
     is_concept: false,
     sort_order: 0,
@@ -161,6 +160,7 @@ describe("projectSchema", () => {
     expect(projectSchema.safeParse(validProject({ tags: ["same", "same"] })).success).toBe(false);
     expect(projectSchema.safeParse(validProject({ tags: [""] })).success).toBe(false);
     expect(projectSchema.safeParse(validProject({ tags: Array.from({ length: 21 }, (_, i) => `tag-${i}`) })).success).toBe(false);
+    expect(projectSchema.safeParse({ ...validProject(), featured: true }).success).toBe(false);
 
     expect(projectSchema.safeParse({ ...validProject(), unexpected: true }).success).toBe(false);
   });

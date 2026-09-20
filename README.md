@@ -1,6 +1,6 @@
 # Portoferry
 
-Website portofolio dan layanan Ferry Kurniawan untuk **Web Development**, **IT Consulting**, dan **Video Editing**. Karya Graphic Design dan AI Consulting ditampilkan di katalog proyek. Konten dapat diperbarui dari panel admin setelah Supabase disambungkan.
+Website portofolio dan layanan Ferry Kurniawan untuk **Web Development**, **IT Consulting**, dan **Video Editing**. Latest Feed dan katalog memuat seluruh kategori karya, termasuk Graphic Design dan AI Consulting. Konten dapat diperbarui dari panel admin setelah Supabase disambungkan.
 
 > **Aktivasi layanan:** kode siap dihubungkan ke Supabase dan Vercel, tetapi koneksi akun, deployment publik, dan DNS belum diaktifkan. Ikuti [panduan deployment](docs/DEPLOYMENT.md) dan pilih production branch yang benar-benar tersedia di repository.
 
@@ -8,9 +8,9 @@ Website portofolio dan layanan Ferry Kurniawan untuk **Web Development**, **IT C
 
 - Landing page dengan empat slide hero: perkenalan, Web Development, Video Editing, dan IT Consulting. Teks berganti halus setiap 3 detik tanpa tombol play/pause, memakai satu foto yang sama, dan mengikuti preferensi reduced motion. Hover tidak menghentikan rotasi; memilih panah atau nomor slide menghentikannya agar pengunjung bisa membaca.
 - Halaman khusus untuk setiap layanan utama, dengan lingkup kerja, FAQ, karya terkait, dan brief sesuai layanan.
-- Feed karya terbaru bergaya postingan sosial di beranda: maksimal tiga proyek `published` dari kategori utama. Proyek `featured` diprioritaskan, lalu slot yang tersisa diisi proyek terbit lainnya tanpa wajib ditandai unggulan.
+- Latest Feed bergaya postingan sosial di beranda menampilkan semua proyek `published` dari seluruh kategori, diurutkan dari waktu penambahan terbaru. Tidak ada fitur unggulan atau pembatasan tiga kartu.
 - Katalog proyek dan halaman detail untuk lima kategori: Web Development, IT Consulting, Video Editing, Graphic Design, dan AI Consulting.
-- Panel admin live untuk tambah, edit, hapus, draft, publish, unggulan, urutan, tag, dan upload gambar proyek.
+- Panel admin live untuk tambah, edit, hapus, draft, publish, urutan katalog, tag, dan upload gambar proyek.
 - Pengaturan status ketersediaan, WhatsApp, email, dan Instagram dari panel admin.
 - Form kontak yang menyiapkan brief untuk disalin/diunduh; jika kontak diisi, form membuka WhatsApp atau email agar pengunjung mengirim sendiri.
 - Mode demo di `/admin/demo` untuk mencoba CRUD di browser lokal tanpa menyentuh situs publik.

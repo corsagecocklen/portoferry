@@ -5,8 +5,18 @@ import { demoProjectInputSchema } from "./admin-types";
 
 const snapshotKey = "portoferry-admin-demo-v1";
 const maxDemoImageBytes = 1_000_000;
+const storedProjectSchema = z.preprocess(
+  (value) => {
+    if (typeof value !== "object" || value === null || Array.isArray(value)) return value;
+
+    const project = { ...(value as Record<string, unknown>) };
+    delete project.featured;
+    return project;
+  },
+  demoProjectInputSchema.extend({ id: z.string().min(1).max(100), created_at: z.iso.datetime() }),
+);
 const snapshotSchema = z.object({
-  projects: z.array(demoProjectInputSchema.extend({ id: z.string().min(1).max(100), created_at: z.iso.datetime() })).max(100),
+  projects: z.array(storedProjectSchema).max(100),
   settings: settingsSchema,
 });
 

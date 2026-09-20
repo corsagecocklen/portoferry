@@ -80,7 +80,6 @@ function ProjectRow({ project, onEdit, onDelete, disabled }: { project: Project;
           <span>{project.category}</span>
           <span>{project.year}</span>
           <span>{formatProjectDate(project.created_at)}</span>
-          {project.featured && <span className="admin-featured-label">Unggulan</span>}
           {project.is_concept && <span>Studi konsep</span>}
         </div>
       </div>
@@ -125,7 +124,7 @@ export function AdminShell({ mode, adminEmail, initialProjects, initialSettings 
   const counts = useMemo(() => ({
     published: projects.filter((project) => project.published).length,
     draft: projects.filter((project) => !project.published).length,
-    featured: projects.filter((project) => project.featured).length,
+    total: projects.length,
   }), [projects]);
 
   const filteredProjects = useMemo(() => {
@@ -397,7 +396,7 @@ export function AdminShell({ mode, adminEmail, initialProjects, initialSettings 
           <section className="admin-stats" aria-label="Ringkasan proyek">
             <div className="admin-stat-card"><span>{mode === "demo" ? "Terbit (demo)" : "Terbit"}</span><strong>{counts.published}</strong><small>{mode === "demo" ? "status lokal saja" : "tampil di katalog publik"}</small></div>
             <div className="admin-stat-card"><span>Draft</span><strong>{counts.draft}</strong><small>{mode === "demo" ? "status lokal saja" : "belum ditampilkan"}</small></div>
-            <div className="admin-stat-card"><span>Unggulan</span><strong>{counts.featured}</strong><small>ditandai sebagai pilihan</small></div>
+            <div className="admin-stat-card"><span>Total proyek</span><strong>{counts.total}</strong><small>terbit dan draft</small></div>
           </section>
 
           <section className="admin-section" id="projects" aria-labelledby="projects-heading">
