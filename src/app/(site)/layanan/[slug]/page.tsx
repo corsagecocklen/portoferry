@@ -25,11 +25,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   return {
-    title: `${service.title} — ${service.heroAccent}`,
+    title: `${service.title} | ${service.heroAccent}`,
     description: service.heroDescription,
     alternates: { canonical: `/layanan/${service.slug}` },
     openGraph: {
-      title: `${service.title} — Portoferry`,
+      title: `${service.title} | Portoferry`,
       description: service.heroDescription,
       url: `/layanan/${service.slug}`,
       type: "website",

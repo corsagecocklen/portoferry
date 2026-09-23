@@ -32,14 +32,33 @@ function expectVersionedImage(head: string, attribute: "name" | "property", valu
   return image;
 }
 
+test("browser titles consistently use pipe separators", async ({ page }) => {
+  const routes = [
+    ["/", "Ferry Kurniawan | Web, IT & Video | Portoferry"],
+    ["/admin", "Admin | Portoferry"],
+    ["/admin/demo", "Admin | Portoferry"],
+    ["/layanan/web-development", "Web Development | Website yang bekerja. | Portoferry"],
+    ["/layanan/video-editing", "Video Editing | Rapikan footage‑mu. | Portoferry"],
+    ["/layanan/it-consulting", "IT Consulting | Tentukan langkahnya. | Portoferry"],
+    ["/proyek", "Proyek & Eksplorasi | Portoferry"],
+    ["/proyek/ruang-kopi", "Ruang Kopi, ruang untuk singgah. | Portoferry"],
+    ["/proyek/contoh-artikel-brief-website", "Contoh artikel: menyiapkan brief website. | Portoferry"],
+  ];
+
+  for (const [pathname, title] of routes) {
+    await page.goto(pathname);
+    await expect(page).toHaveTitle(title);
+  }
+});
+
 test("homepage exposes OG and Twitter metadata in the initial crawler head", async ({ request }) => {
   for (const [crawler, userAgent] of Object.entries(crawlers)) {
     const head = await getCrawlerHead(request, "/", userAgent);
-    expect(getMeta(head, "property", "og:title"), crawler).toBe("Ferry Kurniawan — Website Optimal, Bisnis Maksimal.");
+    expect(getMeta(head, "property", "og:title"), crawler).toBe("Ferry Kurniawan | Website Optimal, Bisnis Maksimal.");
     expect(getMeta(head, "property", "og:description"), crawler).toContain("Web Development");
     const ogImage = expectVersionedImage(head, "property", "og:image");
     expect(getMeta(head, "name", "twitter:card"), crawler).toBe("summary_large_image");
-    expect(getMeta(head, "name", "twitter:title"), crawler).toBe("Ferry Kurniawan — Website Optimal, Bisnis Maksimal.");
+    expect(getMeta(head, "name", "twitter:title"), crawler).toBe("Ferry Kurniawan | Website Optimal, Bisnis Maksimal.");
     expect(getMeta(head, "name", "twitter:description"), crawler).toContain("Web Development");
     expect(getMeta(head, "name", "twitter:image"), crawler).toBe(ogImage);
   }
@@ -49,12 +68,12 @@ test("service pages expose the current versioned image to OG and Twitter crawler
   for (const [slug, title] of [["web-development", "Web Development"], ["video-editing", "Video Editing"], ["it-consulting", "IT Consulting"]]) {
     for (const [crawler, userAgent] of Object.entries(crawlers)) {
       const head = await getCrawlerHead(request, `/layanan/${slug}`, userAgent);
-      expect(getMeta(head, "property", "og:title"), crawler).toBe(`${title} — Portoferry`);
+      expect(getMeta(head, "property", "og:title"), crawler).toBe(`${title} | Portoferry`);
       const description = getMeta(head, "property", "og:description");
       expect(description, crawler).toBeTruthy();
       const ogImage = expectVersionedImage(head, "property", "og:image");
       expect(getMeta(head, "name", "twitter:card"), crawler).toBe("summary_large_image");
-      expect(getMeta(head, "name", "twitter:title"), crawler).toBe(`${title} — Portoferry`);
+      expect(getMeta(head, "name", "twitter:title"), crawler).toBe(`${title} | Portoferry`);
       expect(getMeta(head, "name", "twitter:description"), crawler).toBe(description);
       expect(getMeta(head, "name", "twitter:image"), crawler).toBe(ogImage);
     }

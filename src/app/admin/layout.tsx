@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import "./admin.css";
 
 export const metadata: Metadata = {
-  title: { absolute: "Admin — Portoferry" },
+  title: { absolute: "Admin | Portoferry" },
   description: "Panel pengelolaan proyek Portoferry.",
   robots: {
     index: false,
