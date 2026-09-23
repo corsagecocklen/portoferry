@@ -698,6 +698,10 @@
   gap: 3px;
 }
 
+.admin-route .admin-project-open:disabled {
+  cursor: not-allowed;
+}
+
 .admin-route .admin-danger-button:hover:not(:disabled) {
   border-color: #623d43;
   color: var(--admin-danger);
@@ -1474,9 +1478,14 @@
   }
 
   .admin-route .admin-project-row {
-    grid-template-columns: 70px minmax(0, 1fr) auto;
+    grid-template-columns: 70px minmax(0, 1fr);
     gap: 11px;
     padding: 14px 12px;
+  }
+
+  .admin-route .admin-project-actions {
+    grid-column: 2;
+    justify-content: flex-end;
   }
 
   .admin-route .admin-project-thumb {

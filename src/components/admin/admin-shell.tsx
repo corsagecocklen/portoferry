@@ -63,7 +63,14 @@ function formatProjectDate(value: string) {
   }
 }
 
-function ProjectRow({ project, onEdit, onDelete, disabled }: { project: Project; onEdit: (project: Project, target: HTMLButtonElement) => void; onDelete: (project: Project) => void; disabled: boolean }) {
+function ProjectRow({ project, onEdit, onDelete, disabled, demoOnly }: { project: Project; onEdit: (project: Project, target: HTMLButtonElement) => void; onDelete: (project: Project) => void; disabled: boolean; demoOnly: boolean }) {
+  const openLabel = `Buka tulisan ${project.title} di tab baru`;
+  const openUnavailable = !project.published
+    ? "Terbitkan posting terlebih dahulu untuk membuka tulisan."
+    : demoOnly
+      ? "Posting demo ini hanya tersimpan di browser, bukan di situs publik."
+      : disabled ? "Tunggu proses selesai." : null;
+
   return (
     <li className="admin-project-row">
       <div className="admin-project-thumb">
@@ -86,6 +93,15 @@ function ProjectRow({ project, onEdit, onDelete, disabled }: { project: Project;
       </div>
       <div className="admin-project-actions">
         <button className="icon-button" type="button" onClick={(event) => onEdit(project, event.currentTarget)} aria-label={`Edit ${project.title}`} title="Edit proyek" disabled={disabled}><Pencil size={17} /></button>
+        {openUnavailable ? (
+          <button className="icon-button admin-project-open" type="button" aria-label={`${openLabel}. ${openUnavailable}`} title={openUnavailable} disabled>
+            <ExternalLink size={17} aria-hidden="true" />
+          </button>
+        ) : (
+          <a className="icon-button admin-project-open" href={`/proyek/${project.slug}`} target="_blank" rel="noopener noreferrer" aria-label={openLabel} title="Buka tulisan di tab baru">
+            <ExternalLink size={17} aria-hidden="true" />
+          </a>
+        )}
         <button className="icon-button admin-danger-button" type="button" onClick={() => onDelete(project)} aria-label={`Hapus ${project.title}`} title="Hapus proyek" disabled={disabled}><Trash2 size={17} /></button>
       </div>
     </li>
@@ -411,7 +427,7 @@ export function AdminShell({ mode, adminEmail, initialProjects, initialSettings 
               <label className="admin-select-field" htmlFor="project-category-filter"><span className="sr-only">Filter kategori</span><select id="project-category-filter" value={categoryFilter} onChange={(event) => setCategoryFilter(event.target.value)}><option value="all">Semua kategori</option>{categories.map((category) => <option key={category} value={category}>{category}</option>)}</select></label>
             </div>
             <div className="admin-project-list-wrap">
-              {filteredProjects.length > 0 ? <ul className="admin-project-list">{filteredProjects.map((project) => <ProjectRow key={project.id} project={project} onEdit={(item, target) => openEditor(item, target)} onDelete={handleDelete} disabled={busy} />)}</ul> : <div className="admin-empty-state"><Search size={22} /><h3>Belum ada yang cocok.</h3><p>Coba ubah kata kunci atau filter yang dipilih.</p></div>}
+              {filteredProjects.length > 0 ? <ul className="admin-project-list">{filteredProjects.map((project) => <ProjectRow key={project.id} project={project} onEdit={(item, target) => openEditor(item, target)} onDelete={handleDelete} disabled={busy} demoOnly={mode === "demo" && !initialProjects.some((item) => item.published && item.slug === project.slug)} />)}</ul> : <div className="admin-empty-state"><Search size={22} /><h3>Belum ada yang cocok.</h3><p>Coba ubah kata kunci atau filter yang dipilih.</p></div>}
             </div>
           </section>
 

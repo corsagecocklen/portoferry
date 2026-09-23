@@ -29,6 +29,8 @@ Prinsip penulisan mengikuti [No AI Slop](https://github.com/petergyang/no-ai-slo
 
 Pengunjung tidak melihat proyek draft. Setelah diterbitkan, proyek dari kategori mana pun masuk Recent Works. Urutan feed mengikuti waktu penambahan proyek (`created_at`), bukan tahun pengerjaan atau urutan katalog (`sort_order`). Mengedit proyek tidak memindahkannya ke atas feed. Tidak ada fitur unggulan.
 
+Di daftar posting admin, ikon **Buka tulisan di tab baru** di sebelah **Edit** membuka halaman `/proyek/[slug]` milik posting tersebut tanpa meninggalkan admin, bukan tautan website proyek. Tombol nonaktif untuk draft dan posting demo lokal yang belum tersedia di situs publik.
+
 Kolom database lama `featured` tetap dibiarkan untuk kompatibilitas data yang sudah ada, tetapi aplikasi tidak lagi menggunakan atau menulis nilainya. Kolom tersebut tidak memengaruhi visibilitas maupun urutan proyek.
 
 Hover pointer tidak menghentikan rotasi hero. Setelah panah atau nomor slide dipilih lewat klik, keyboard, atau sentuhan, pergantian otomatis berhenti sampai hero dimuat ulang; navigasi manual tetap tersedia. Tanpa pemilihan manual, hero berhenti sementara saat mendapat fokus keyboard, berada di luar layar, atau tab browser disembunyikan, lalu melanjutkan rotasi saat kondisi itu berakhir. Preferensi reduced motion mematikan rotasi dan transisi. Teks berganti dengan crossfade tanpa menggeser kontrol, sementara foto `ferry-landing.webp` tetap sama. Teks hero dan halaman layanan saat ini dikelola di kode, bukan panel admin.
