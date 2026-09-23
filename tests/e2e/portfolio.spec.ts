@@ -7,6 +7,7 @@ test("landing page prioritizes web, IT, and video with working navigation and FA
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Website Optimal, Bisnis Maksimal.");
   await expect(page.locator(".feed-label > span").first()).toHaveText("RECENT WORKS");
   await expect(page.locator(".service-row")).toHaveCount(3);
+  await expect(page.locator(".process-grid h3")).toHaveText(["Ngobrol dulu.", "Saya kerjakan.", "Cek, lalu posting."]);
   await expect(page.locator(".home-project-grid .project-card")).toHaveCount(7);
   await page.getByRole("link", { name: "Lihat syaratnya" }).click();
   await page.locator("summary").filter({ hasText: "Beneran bisa" }).click();

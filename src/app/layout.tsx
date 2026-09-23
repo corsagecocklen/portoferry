@@ -8,7 +8,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://portoferry.my.id";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: { default: "Ferry Kurniawan | Web, IT & Video | Portoferry", template: "%s | Portoferry" },
+  title: { default: "Portoferry", template: "%s | Portoferry" },
   description: "Website untuk bisnismu, bantuan IT, dan video untuk kontenmu. Kenalan dengan Ferry Kurniawan dan lihat karya di Portoferry.",
   openGraph: {
     title: "Ferry Kurniawan | Website Optimal, Bisnis Maksimal.",

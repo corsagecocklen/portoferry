@@ -32,9 +32,9 @@ function expectVersionedImage(head: string, attribute: "name" | "property", valu
   return image;
 }
 
-test("browser titles consistently use pipe separators", async ({ page }) => {
+test("homepage title stays concise while other pages retain pipe separators", async ({ page }) => {
   const routes = [
-    ["/", "Ferry Kurniawan | Web, IT & Video | Portoferry"],
+    ["/", "Portoferry"],
     ["/admin", "Admin | Portoferry"],
     ["/admin/demo", "Admin | Portoferry"],
     ["/layanan/web-development", "Web Development | Website yang bekerja. | Portoferry"],
