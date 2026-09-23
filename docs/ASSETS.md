@@ -11,7 +11,8 @@ Asset di bawah adalah file yang saat ini disiapkan untuk Portoferry. File turuna
 | `ferry-formal.webp` | 896×1200 | Potret di halaman IT Consulting. | Versi WebP dari foto setengah badan berjas yang diberikan pengguna, tanpa metadata asli. |
 | `ferry-formal-cutout.webp` | 677×1116 | Asset hero sebelumnya; tidak dipakai oleh hero aktif. | Turunan foto berjas yang sama; latar dihapus dan tepi diperhalus secara lokal, tanpa mengganti wajah atau pakaian. |
 | `ferry-portrait.webp` | 650×813 | Potret bagian “Tentang”. | Turunan terproses dari foto wajah Ferry yang diberikan pengguna. |
-| `ferry-avatar.webp` | 96×96 | Avatar pada kartu feed proyek. | Crop terproses dari foto Ferry yang diberikan pengguna. |
+| `ferry-avatar-20260923.webp` | 192×192 | Avatar aktif pada seluruh kartu feed, katalog, dan preview post admin. | Versi WebP dari `Untitled design (8).png` yang diberikan pengguna pada 23 September 2026; komposisi bulat dipertahankan, metadata dihapus. Nama file baru menghindari cache avatar sebelumnya. |
+| `ferry-avatar.webp` | 96×96 | Avatar sebelumnya; tidak dipakai oleh kartu aktif. | Crop terproses dari foto Ferry yang diberikan pengguna. |
 | `project-profile.webp` | 1000×1000 | Kartu eksplorasi visual/profil. | Turunan terproses dari poster desain yang diberikan pengguna; jangan dianggap endorsement merek yang tampak di referensi. |
 | `project-portoferry.webp` | 1000×1000 | Kartu konsep website Portoferry. | Artwork ilustratif yang dibuat khusus untuk tampilan portfolio. |
 | `project-kopi.webp` | 1000×1000 | Kartu konsep “Ruang Kopi”. | Artwork ilustratif mandiri dengan foto kopi Unsplash ter-embed; bukan pekerjaan klien. |

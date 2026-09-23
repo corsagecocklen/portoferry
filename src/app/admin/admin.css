@@ -922,6 +922,7 @@
 .admin-route .admin-dialog {
   width: min(1120px, calc(100% - 32px));
   max-height: calc(100dvh - 32px);
+  overflow: auto;
   padding: 0;
   border: 1px solid #3a4a53;
   border-radius: 9px;
@@ -936,8 +937,7 @@
 }
 
 .admin-route .admin-dialog-panel {
-  max-height: calc(100dvh - 32px);
-  overflow: auto;
+  min-width: 0;
   padding: 28px;
 }
 
@@ -972,6 +972,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1.25fr) minmax(290px, .75fr);
   align-items: start;
+  min-width: 0;
   gap: 30px;
   padding-top: 26px;
 }
@@ -1155,6 +1156,13 @@
   font-size: .6rem;
 }
 
+.admin-route .admin-project-card-preview .project-title,
+.admin-route .admin-project-card-preview .project-summary,
+.admin-route .admin-project-card-preview .post-footnote > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
 .admin-route .admin-preview-status {
   justify-content: center;
   width: 100%;
@@ -1268,6 +1276,14 @@
 }
 
 @media (max-width: 980px) {
+  .admin-route .admin-content {
+    padding-inline: clamp(18px, 4vw, 46px);
+  }
+
+  .admin-route :is(input:not([type="checkbox"]):not([type="file"]), textarea, select) {
+    font-size: 1rem;
+  }
+
   .admin-route .admin-shell {
     display: block;
   }
@@ -1275,7 +1291,7 @@
   .admin-route .admin-sidebar {
     position: static;
     display: grid;
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: center;
     gap: 22px;
     min-height: auto;
@@ -1296,11 +1312,14 @@
   .admin-route .admin-sidebar-nav {
     display: flex;
     justify-content: center;
+    min-width: 0;
+    flex-wrap: wrap;
     gap: 3px;
   }
 
   .admin-route .admin-sidebar-nav a {
     min-height: 36px;
+    min-width: 0;
     padding: 0 9px;
     font-size: .72rem;
   }
@@ -1327,6 +1346,36 @@
 }
 
 @media (max-width: 680px) {
+  .admin-route .admin-sidebar {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 14px 12px;
+    padding: 14px 18px;
+  }
+
+  .admin-route .admin-sidebar-brand {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .admin-route .admin-sidebar-nav {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    gap: 2px;
+  }
+
+  .admin-route .admin-sidebar-nav a {
+    gap: 6px;
+    padding: 0 6px;
+    font-size: .68rem;
+  }
+
+  .admin-route .admin-sidebar::after {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
   .admin-route .admin-topbar {
     min-height: 61px;
     padding: 0 18px;
@@ -1464,12 +1513,16 @@
   }
 
   .admin-route .admin-dialog-panel {
-    max-height: calc(100dvh - 18px);
     padding: 20px 15px;
   }
 
   .admin-route .admin-dialog-head h2 {
     font-size: 1.8rem;
+  }
+
+  .admin-route .admin-dialog-close {
+    width: 44px;
+    height: 44px;
   }
 
   .admin-route .admin-form-grid-two,
@@ -1483,8 +1536,8 @@
 
   .admin-route .admin-dialog-actions {
     position: sticky;
-    bottom: -20px;
-    padding: 15px 0 3px;
+    bottom: 0;
+    padding: 15px 0 max(8px, env(safe-area-inset-bottom));
     background: linear-gradient(transparent, var(--admin-surface) 25%);
   }
 

@@ -24,6 +24,14 @@ function validationError(error: z.ZodError): ActionResult {
   return failure(error.issues[0]?.message ?? "Data tidak valid.");
 }
 
+function projectSaveError(error: { code?: string; message?: string } | null, category: ProjectInput["category"]): string {
+  if (error?.code === "23505") return "Slug sudah dipakai proyek lain. Pilih slug berbeda.";
+  if (category === "Artikel" && error?.code === "23514" && error.message?.includes("projects_category_check")) {
+    return "Kategori Artikel belum aktif di database. Jalankan migrasi 002_article_category.sql di Supabase, lalu coba simpan lagi.";
+  }
+  return "Proyek gagal disimpan.";
+}
+
 function revalidatePublicPaths() {
   revalidatePath("/");
   revalidatePath("/proyek");
@@ -119,7 +127,7 @@ export async function saveProject(
         .single();
 
       if (error || !data) {
-        return failure(error?.code === "23505" ? "Slug sudah dipakai proyek lain. Pilih slug berbeda." : "Proyek gagal disimpan.") as ActionResult<Project>;
+        return failure(projectSaveError(error, parsed.data.category)) as ActionResult<Project>;
       }
 
       revalidatePublicPaths();
@@ -134,7 +142,7 @@ export async function saveProject(
       .single();
 
     if (error || !data) {
-      return failure(error?.code === "23505" ? "Slug sudah dipakai proyek lain. Pilih slug berbeda." : "Proyek gagal disimpan.") as ActionResult<Project>;
+      return failure(projectSaveError(error, parsed.data.category)) as ActionResult<Project>;
     }
 
     revalidatePublicPaths();

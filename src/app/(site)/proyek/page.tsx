@@ -6,7 +6,7 @@ import { getPublicProjects, getSiteSettings } from "@/lib/data";
 
 export const metadata: Metadata = {
   title: "Proyek & Eksplorasi",
-  description: "Karya Ferry Kurniawan di web development, IT consulting, video editing, graphic design, dan AI consulting. Lihat proses dan cerita di balik proyeknya.",
+  description: "Karya dan artikel Ferry Kurniawan: web development, IT consulting, video editing, graphic design, AI consulting, serta catatan dan tulisan personal.",
   alternates: { canonical: "/proyek" },
 };
 

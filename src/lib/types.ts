@@ -1,4 +1,4 @@
-export const categories = [
+export const serviceCategories = [
   "Web Development",
   "IT Consulting",
   "Video Editing",
@@ -6,6 +6,9 @@ export const categories = [
   "AI Consulting",
 ] as const;
 
+export const categories = [...serviceCategories, "Artikel"] as const;
+
+export type ContactService = (typeof serviceCategories)[number];
 export type Category = (typeof categories)[number];
 
 export type Project = {

@@ -44,6 +44,7 @@ export function ProjectEditorDialog({
   const dialogRef = useRef<HTMLDialogElement>(null);
   const titleRef = useRef<HTMLInputElement>(null);
   const [draft, setDraft] = useState<ProjectInput>(createBlankProject);
+  const [tagsText, setTagsText] = useState("");
   const [errors, setErrors] = useState<FieldErrors>({});
   const [formError, setFormError] = useState("");
   const [uploadError, setUploadError] = useState("");
@@ -56,6 +57,7 @@ export function ProjectEditorDialog({
 
     const timeout = window.setTimeout(() => {
       setDraft(project ? projectToInput(project) : createBlankProject());
+      setTagsText(project ? tagsToText(project.tags) : "");
       setErrors({});
       setFormError("");
       setUploadError("");
@@ -68,10 +70,12 @@ export function ProjectEditorDialog({
   useEffect(() => {
     const dialog = dialogRef.current;
     if (!dialog) return;
+    let focusTimeout: number | undefined;
 
     if (open && !dialog.open) {
       dialog.showModal();
-      window.setTimeout(() => titleRef.current?.focus(), 0);
+      dialog.scrollTop = 0;
+      focusTimeout = window.setTimeout(() => titleRef.current?.focus({ preventScroll: true }), 0);
     }
 
     if (!open && dialog.open) {
@@ -79,6 +83,7 @@ export function ProjectEditorDialog({
     }
 
     return () => {
+      window.clearTimeout(focusTimeout);
       if (dialog.open) dialog.close();
     };
   }, [open]);
@@ -89,6 +94,8 @@ export function ProjectEditorDialog({
     id: project?.id ?? "preview-project",
     created_at: project?.created_at ?? new Date().toISOString(),
   }), [draft, project]);
+
+  const isArticle = draft.category === "Artikel";
 
   function updateField<K extends keyof ProjectInput>(field: K, value: ProjectInput[K]) {
     setDraft((current) => ({ ...current, [field]: value }));
@@ -202,7 +209,7 @@ export function ProjectEditorDialog({
           <form className="admin-project-form" onSubmit={submit} aria-busy={isSaving || isUploading} noValidate>
             <div className="admin-form-grid admin-form-grid-two">
               <label className="field" htmlFor="project-title">
-                Judul proyek
+                {isArticle ? "Judul artikel" : "Judul proyek"}
                 <input
                   ref={titleRef}
                   id="project-title"
@@ -275,7 +282,7 @@ export function ProjectEditorDialog({
             </label>
 
             <label className="field" htmlFor="project-description">
-              Cerita proyek
+              {isArticle ? "Isi artikel" : "Cerita proyek"}
               <textarea
                 id="project-description"
                 value={draft.description}
@@ -284,7 +291,7 @@ export function ProjectEditorDialog({
                 aria-describedby={errors.description ? "project-description-error" : undefined}
                 rows={6}
                 maxLength={10000}
-                placeholder="Konteks, peran, proses, dan hasil yang ingin kamu ceritakan."
+                placeholder={isArticle ? "Tulis artikelmu di sini. Pisahkan paragraf dengan satu baris kosong." : "Konteks, peran, proses, dan hasil yang ingin kamu ceritakan."}
                 required
               />
               <FieldError id="project-description-error" message={errors.description} />
@@ -330,7 +337,11 @@ export function ProjectEditorDialog({
 
             <label className="field" htmlFor="project-tags">
               Tags <span className="admin-optional">pisahkan dengan koma</span>
-              <input id="project-tags" value={tagsToText(draft.tags)} onChange={(event) => updateField("tags", textToTags(event.target.value))} aria-invalid={Boolean(errors.tags)} aria-describedby={errors.tags ? "project-tags-error" : undefined} placeholder="Next.js, Landing page, Konsep" />
+              <input id="project-tags" value={tagsText} onChange={(event) => {
+                setTagsText(event.target.value);
+                updateField("tags", textToTags(event.target.value));
+              }} aria-invalid={Boolean(errors.tags)} aria-describedby={errors.tags ? "project-tags-help project-tags-error" : "project-tags-help"} placeholder="Next.js, Landing page, Konsep" />
+              <span id="project-tags-help" className="admin-field-help">Maksimal 20 tag, masing-masing 32 karakter. Contoh: Website, Tips, Catatan.</span>
               <FieldError id="project-tags-error" message={errors.tags} />
             </label>
 

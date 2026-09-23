@@ -2,10 +2,10 @@
 
 import { ArrowDownToLine, ArrowUpRight, Check, Copy, MessageCircle, X } from "lucide-react";
 import { useRef, useState, type FormEvent } from "react";
-import { categories, type Category, type SiteSettings } from "@/lib/types";
+import { serviceCategories, type ContactService, type SiteSettings } from "@/lib/types";
 
-export function ContactForm({ settings, initialService }: { settings: SiteSettings; initialService?: Category }) {
-  const [service, setService] = useState<Category>(initialService ?? "Web Development");
+export function ContactForm({ settings, initialService }: { settings: SiteSettings; initialService?: ContactService }) {
+  const [service, setService] = useState<ContactService>(initialService ?? "Web Development");
   const [brief, setBrief] = useState("");
   const [copied, setCopied] = useState(false);
   const [copyError, setCopyError] = useState("");
@@ -41,7 +41,7 @@ export function ContactForm({ settings, initialService }: { settings: SiteSettin
 
   return <>
     <form className="contact-form" onSubmit={submit}>
-      <fieldset><legend>Kamu butuh bantuan apa?</legend><div className="service-choices">{categories.map(item => <label key={item} className={service === item ? "selected" : ""}><input type="radio" name="service" value={item} checked={service === item} onChange={() => setService(item)} />{item}</label>)}</div></fieldset>
+      <fieldset><legend>Kamu butuh bantuan apa?</legend><div className="service-choices">{serviceCategories.map(item => <label key={item} className={service === item ? "selected" : ""}><input type="radio" name="service" value={item} checked={service === item} onChange={() => setService(item)} />{item}</label>)}</div></fieldset>
       <label className="field">Nama kamu<input name="name" autoComplete="name" placeholder="Biar kita kenalan dulu" minLength={2} maxLength={80} required /></label>
       <label className="field">Ceritakan sedikit idemu<textarea name="message" placeholder="Mau bikin apa? Ada target waktu atau referensi?" rows={3} minLength={10} maxLength={2000} required /></label>
       <div className="contact-submit"><button className="button button-primary" type="submit">{hasContact ? "Lanjut ngobrol" : "Siapkan brief"}<ArrowUpRight size={19} /></button><span>Belum perlu brief yang sempurna.<br />Cerita singkat juga boleh.</span></div>

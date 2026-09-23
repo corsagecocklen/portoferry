@@ -187,6 +187,84 @@ describe("admin server actions", () => {
     expect(mocks.revalidatePath).toHaveBeenNthCalledWith(4, "/layanan/[slug]", "page");
   });
 
+  it("accepts Article project saves only after admin authorization", async () => {
+    const articleInput: ProjectInput = {
+      ...projectInput,
+      slug: "article-category-save",
+      title: "Article category save",
+      category: "Artikel",
+    };
+    mocks.requireAdmin.mockRejectedValueOnce(new Error("not admin"));
+
+    await expect(saveProject(null, articleInput)).resolves.toEqual({
+      success: false,
+      error: "Akses admin diperlukan atau proyek gagal disimpan.",
+    });
+    expect(mocks.createClient).not.toHaveBeenCalled();
+
+    const article = savedProject(articleInput);
+    const chain = {
+      insert: vi.fn(),
+      select: vi.fn(),
+      single: vi.fn().mockResolvedValue({ data: article, error: null }),
+    };
+    chain.insert.mockReturnValue(chain);
+    chain.select.mockReturnValue(chain);
+    const from = vi.fn().mockReturnValue(chain);
+    mocks.createClient.mockResolvedValue({ from });
+
+    await expect(saveProject(null, articleInput)).resolves.toEqual({ success: true, data: article });
+    expect(mocks.requireAdmin).toHaveBeenCalledTimes(2);
+    expect(chain.insert).toHaveBeenCalledWith(articleInput);
+    expect(mocks.requireAdmin.mock.invocationCallOrder[1]).toBeLessThan(mocks.createClient.mock.invocationCallOrder[0]);
+  });
+
+  it("explains the Article migration only for its matching database constraint", async () => {
+    const articleInput: ProjectInput = { ...projectInput, category: "Artikel" };
+
+    function configureInsertError(error: { code: string; message: string }) {
+      const chain = {
+        insert: vi.fn(),
+        select: vi.fn(),
+        single: vi.fn().mockResolvedValue({ data: null, error }),
+      };
+      chain.insert.mockReturnValue(chain);
+      chain.select.mockReturnValue(chain);
+      mocks.createClient.mockResolvedValue({ from: vi.fn().mockReturnValue(chain) });
+    }
+
+    configureInsertError({
+      code: "23514",
+      message: 'new row for relation "projects" violates check constraint "projects_category_check"',
+    });
+    const migrationResult = await saveProject(null, articleInput);
+    expect(migrationResult.success).toBe(false);
+    if (migrationResult.success) throw new Error("Expected the old category constraint to fail.");
+    expect(migrationResult.error).toBe("Kategori Artikel belum aktif di database. Jalankan migrasi 002_article_category.sql di Supabase, lalu coba simpan lagi.");
+
+    const genericFailure = { success: false, error: "Proyek gagal disimpan." };
+    const unrelatedFailures: Array<{ input: ProjectInput; error: { code: string; message: string } }> = [
+      {
+        input: articleInput,
+        error: { code: "23514", message: 'new row violates check constraint "projects_year_check"' },
+      },
+      {
+        input: projectInput,
+        error: { code: "23514", message: 'new row violates check constraint "projects_category_check"' },
+      },
+      {
+        input: articleInput,
+        error: { code: "23503", message: 'new row violates check constraint "projects_category_check"' },
+      },
+    ];
+
+    for (const { input, error } of unrelatedFailures) {
+      configureInsertError(error);
+      await expect(saveProject(null, input)).resolves.toEqual(genericFailure);
+    }
+    expect(mocks.revalidatePath).not.toHaveBeenCalled();
+  });
+
   it("updates a project by UUID and does not revalidate after a database failure", async () => {
     const id = "4d3c745a-7711-4000-8000-000000000001";
     const chain = {

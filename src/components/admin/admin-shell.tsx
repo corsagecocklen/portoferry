@@ -158,7 +158,7 @@ export function AdminShell({ mode, adminEmail, initialProjects, initialSettings 
 
   function closeEditor() {
     setEditorProjectId(undefined);
-    window.setTimeout(() => editorTrigger.current?.focus(), 0);
+    window.setTimeout(() => editorTrigger.current?.focus({ preventScroll: true }), 0);
   }
 
   function saveDemoState(nextProjects: Project[], nextSettings = savedSettings) {
@@ -407,7 +407,7 @@ export function AdminShell({ mode, adminEmail, initialProjects, initialSettings 
             <div className="admin-project-toolbar">
               <label className="admin-search-field" htmlFor="project-search"><Search size={17} /><span className="sr-only">Cari proyek</span><input id="project-search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Cari judul, ringkasan, atau tag" /></label>
               <label className="admin-select-field" htmlFor="project-status"><span className="sr-only">Filter status</span><select id="project-status" value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as ProjectFilter)}><option value="all">Semua status</option><option value="published">Terbit</option><option value="draft">Draft</option></select></label>
-              <label className="admin-select-field" htmlFor="project-category"><span className="sr-only">Filter kategori</span><select id="project-category" value={categoryFilter} onChange={(event) => setCategoryFilter(event.target.value)}><option value="all">Semua kategori</option>{categories.map((category) => <option key={category} value={category}>{category}</option>)}</select></label>
+              <label className="admin-select-field" htmlFor="project-category-filter"><span className="sr-only">Filter kategori</span><select id="project-category-filter" value={categoryFilter} onChange={(event) => setCategoryFilter(event.target.value)}><option value="all">Semua kategori</option>{categories.map((category) => <option key={category} value={category}>{category}</option>)}</select></label>
             </div>
             <div className="admin-project-list-wrap">
               {filteredProjects.length > 0 ? <ul className="admin-project-list">{filteredProjects.map((project) => <ProjectRow key={project.id} project={project} onEdit={(item, target) => openEditor(item, target)} onDelete={handleDelete} disabled={busy} />)}</ul> : <div className="admin-empty-state"><Search size={22} /><h3>Belum ada yang cocok.</h3><p>Coba ubah kata kunci atau filter yang dipilih.</p></div>}

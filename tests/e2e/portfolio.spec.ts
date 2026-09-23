@@ -6,7 +6,7 @@ test("landing page prioritizes web, IT, and video with working navigation and FA
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Website siap.Bisnis jalan.");
   await expect(page.locator(".service-row")).toHaveCount(3);
-  await expect(page.locator(".home-project-grid .project-card")).toHaveCount(6);
+  await expect(page.locator(".home-project-grid .project-card")).toHaveCount(7);
   await page.getByRole("link", { name: "Lihat syaratnya" }).click();
   await page.locator("summary").filter({ hasText: "Beneran bisa" }).click();
   await expect(page.locator("details[open]")).toContainText("setelah semua bahan dan lingkup disepakati");
@@ -17,10 +17,15 @@ test("landing page prioritizes web, IT, and video with working navigation and FA
 test("Latest Feed includes every published category newest first and opens Graphic Design work", async ({ page }) => {
   await page.goto("/");
   const feed = page.locator(".home-project-grid");
-  await expect(feed.locator(".project-card")).toHaveCount(6);
+  await expect(feed.locator(".project-card")).toHaveCount(7);
   await expect(feed.locator(".post-subtitle")).toHaveText([
-    "Web Development", "Web Development", "Video Editing", "Graphic Design", "IT Consulting", "AI Consulting",
+    "Artikel", "Web Development", "Web Development", "Video Editing", "Graphic Design", "IT Consulting", "AI Consulting",
   ]);
+  const avatarSources = await feed.locator(".post-avatar").evaluateAll(images => images.map(image => {
+    const url = new URL((image as HTMLImageElement).getAttribute("src") || (image as HTMLImageElement).src, window.location.href);
+    return url.searchParams.get("url") ?? url.pathname;
+  }));
+  expect(avatarSources).toEqual(Array(7).fill("/images/ferry-avatar-20260923.webp"));
   const dates = await feed.locator("time").evaluateAll(elements => elements.map(element => Date.parse((element as HTMLTimeElement).dateTime)));
   expect(dates).toEqual([...dates].sort((a, b) => b - a));
   await feed.getByRole("link", { name: "Lihat proyek A face behind the pixels.", exact: true }).click();
@@ -28,19 +33,44 @@ test("Latest Feed includes every published category newest first and opens Graph
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("A face behind the pixels.");
 });
 
+test("article category filters to a text detail with article labels and no placeholder cover", async ({ page }) => {
+  const title = "Contoh artikel: menyiapkan brief website.";
+  await page.goto("/proyek");
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", /karya dan artikel/i);
+  await page.getByRole("button", { name: "Artikel", exact: true }).click();
+
+  const cards = page.locator(".project-card");
+  await expect(cards).toHaveCount(1);
+  const article = cards.filter({ hasText: title });
+  await expect(article.getByRole("link", { name: `Baca artikel ${title}`, exact: true })).toBeVisible();
+  await expect(article.getByRole("link", { name: "Baca artikel", exact: true })).toBeVisible();
+  await article.getByRole("link", { name: `Baca artikel ${title}`, exact: true }).click();
+
+  await expect(page).toHaveURL(/\/proyek\/contoh-artikel-brief-website$/);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(title);
+  await expect(page.locator(".detail-cover")).toHaveCount(0);
+  await expect(page.locator('meta[property="og:type"]')).toHaveAttribute("content", "article");
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute("content", /\/images\/og-portoferry-v2\.jpg$/);
+  const story = page.locator(".detail-story");
+  await expect(story.locator(".eyebrow")).toHaveText("ARTIKEL");
+  await expect(story.getByRole("heading", { level: 2 })).toHaveText("Catatan & tulisan.");
+  await expect(story.locator("p")).toHaveCount(3);
+  await expect(story.locator("p").first()).toContainText("konten contoh");
+});
+
 test("Latest Feed never hides a project at mobile, two-column, or desktop widths", async ({ page }) => {
   await page.goto("/");
   const cards = page.locator(".home-project-grid .project-card:visible");
   for (const width of [320, 390, 539, 540, 640, 760, 761, 1024, 1440]) {
     await page.setViewportSize({ width, height: 900 });
-    await expect(cards, `Every feed card must remain visible at ${width}px`).toHaveCount(6);
+    await expect(cards, `Every feed card must remain visible at ${width}px`).toHaveCount(7);
   }
 });
 
 test("gallery filters every category, searches, and opens a real project detail", async ({ page }) => {
   await page.goto("/proyek");
-  await expect(page.locator(".project-card")).toHaveCount(6);
-  for (const [category, count] of [["Web Development", 2], ["IT Consulting", 1], ["Video Editing", 1], ["Graphic Design", 1], ["AI Consulting", 1]] as const) {
+  await expect(page.locator(".project-card")).toHaveCount(7);
+  for (const [category, count] of [["Web Development", 2], ["IT Consulting", 1], ["Video Editing", 1], ["Graphic Design", 1], ["AI Consulting", 1], ["Artikel", 1]] as const) {
     await page.getByRole("button", { name: category, exact: true }).click();
     await expect(page.locator(".project-card")).toHaveCount(count);
     await expect(page.locator(".post-subtitle").first()).toHaveText(category);
@@ -48,13 +78,13 @@ test("gallery filters every category, searches, and opens a real project detail"
   await page.getByRole("textbox", { name: "Cari proyek" }).fill("tidak-ada-proyek-ini");
   await expect(page.getByRole("heading", { name: "Belum ketemu." })).toBeVisible();
   await page.getByRole("button", { name: "Tampilkan semua proyek" }).click();
-  await expect(page.locator(".project-card")).toHaveCount(6);
+  await expect(page.locator(".project-card")).toHaveCount(7);
   await page.getByRole("link", { name: "Lihat proyek Ruang Kopi, ruang untuk singgah.", exact: true }).click();
   await expect(page).toHaveURL(/\/proyek\/ruang-kopi$/);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Ruang Kopi, ruang untuk singgah.");
   await expect(page.locator(".detail-story")).toContainText("bukan proyek klien");
   await page.getByRole("link", { name: "Kembali ke semua proyek" }).click();
-  await expect(page.locator(".project-card")).toHaveCount(6);
+  await expect(page.locator(".project-card")).toHaveCount(7);
 });
 
 test("post reactions are accessible and unknown project returns 404", async ({ page }) => {
@@ -74,6 +104,10 @@ test("post reactions are accessible and unknown project returns 404", async ({ p
 
 test("contact form prepares an honest brief without pretending to send it", async ({ page }) => {
   await page.goto("/#kontak");
+  for (const category of ["Web Development", "IT Consulting", "Video Editing", "Graphic Design", "AI Consulting"]) {
+    await expect(page.getByRole("radio", { name: category, exact: true })).toHaveCount(1);
+  }
+  await expect(page.getByRole("radio", { name: "Artikel", exact: true })).toHaveCount(0);
   await page.getByRole("radio", { name: "Video Editing", exact: true }).check();
   await page.getByLabel("Nama kamu", { exact: true }).fill("Pengunjung Uji");
   await page.getByLabel("Ceritakan sedikit idemu").fill("Saya ingin mengedit video promosi berdurasi 30 detik.");
@@ -123,7 +157,7 @@ test("admin removes featured controls while keeping new projects in draft for ev
   await expect(editor.getByRole("checkbox")).toHaveCount(2);
   await expect(editor.getByRole("spinbutton", { name: /Urutan.*katalog/ })).toHaveValue("0");
   await expect(published).not.toBeChecked();
-  for (const category of ["Web Development", "IT Consulting", "Video Editing", "Graphic Design", "AI Consulting"]) {
+  for (const category of ["Web Development", "IT Consulting", "Video Editing", "Graphic Design", "AI Consulting", "Artikel"]) {
     await editor.locator("#project-category").selectOption(category);
     await expect(editor.locator("#project-category")).toHaveValue(category);
     await expect(published).not.toBeChecked();
@@ -166,7 +200,7 @@ test("admin demo supports validated create, upload, persistent edit, and delete 
   const updatedRow = page.locator(".admin-project-row").filter({ hasText: "Proyek Pengujian Diperbarui" });
   await expect(updatedRow).toContainText("Draft");
   await page.goto("/proyek");
-  await expect(page.locator(".project-card")).toHaveCount(6);
+  await expect(page.locator(".project-card")).toHaveCount(7);
   await expect(page.getByText("Proyek Pengujian Diperbarui")).toHaveCount(0);
   await page.goto("/admin/demo");
   await expect(updatedRow).toBeVisible();
@@ -174,7 +208,7 @@ test("admin demo supports validated create, upload, persistent edit, and delete 
   await updatedRow.getByRole("button", { name: "Hapus Proyek Pengujian Diperbarui" }).click();
   await expect(updatedRow).toHaveCount(0);
   await page.reload();
-  await expect(page.locator(".admin-project-row")).toHaveCount(6);
+  await expect(page.locator(".admin-project-row")).toHaveCount(7);
 });
 
 test("demo settings validate contact details and persist without changing public contacts", async ({ page }) => {

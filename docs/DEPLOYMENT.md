@@ -44,10 +44,18 @@ Portoferry menawarkan layanan bisnis. Dokumen Vercel menyatakan Hobby dibatasi u
 
 1. Buat project Supabase baru atau pilih project yang akan menjadi backend Portoferry.
 2. Buka **SQL Editor**.
-3. Jalankan seluruh isi [`supabase/migrations/001_portfolio.sql`](../supabase/migrations/001_portfolio.sql). Migration dirancang idempoten.
-4. Pastikan tabel `projects`, `site_settings`, `admin_users`, fungsi `public.is_admin()`, policy RLS, dan bucket `project-images` berhasil dibuat.
+3. Jalankan seluruh isi [`supabase/migrations/001_portfolio.sql`](../supabase/migrations/001_portfolio.sql), lalu [`supabase/migrations/002_article_category.sql`](../supabase/migrations/002_article_category.sql). Kedua migrasi aman dijalankan ulang.
+4. Pastikan tabel `projects`, `site_settings`, `admin_users`, fungsi `public.is_admin()`, policy RLS, bucket `project-images`, dan kategori Artikel berhasil disiapkan.
 
 Migration membuat satu baris `site_settings`; tabel `projects` tetap kosong sampai proyek nyata dibuat. Katalog kosong setelah tersambung bukan error dan data `/admin/demo` tidak ikut berpindah. Tidak ada seed klien fiktif yang perlu dipublikasikan. Deploy Vercel tidak menjalankan migration SQL secara otomatis.
+
+### Menambahkan kategori Artikel pada database yang sudah berjalan
+
+Untuk situs yang sudah memakai migrasi `001`, jalankan **hanya** [`002_article_category.sql`](../supabase/migrations/002_article_category.sql) lewat **Supabase → SQL Editor → New query → Run**. Migrasi mengganti constraint kategori dalam satu transaksi; kelima kategori lama tetap diterima, ditambah `Artikel`. Proyek yang sudah ada, gambar Storage, dan policy akses tidak diubah. Jalankan sebelum memakai kategori baru pada admin live.
+
+Setelah berhasil, refresh `/admin`, pilih **Tambah proyek → Kategori → Artikel**, lalu isi judul, ringkasan, dan isi tulisan. Simpan sebagai draft dahulu dan buka ulang untuk memeriksa isinya sebelum diterbitkan. Bila muncul pesan “Kategori Artikel belum aktif di database”, migrasi belum diterapkan pada project Supabase yang dipakai production; push/deploy Vercel saja tidak menjalankan SQL ini.
+
+Regresi SQL tersedia di `tests/sql/article-migration.sql`; jalankan hanya pada database uji sekali pakai yang sudah menerapkan migrasi `001`, bukan database produksi. Pengujian memeriksa penerimaan Artikel, penolakan kategori lain, keamanan menjalankan migrasi ulang, serta data dan policy yang tetap utuh.
 
 ### Buat user admin pertama
 

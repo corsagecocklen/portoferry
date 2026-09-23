@@ -56,7 +56,7 @@ Hover pointer tidak menghentikan rotasi hero. Setelah panah atau nomor slide dip
 | --- | --- | --- |
 | `slug` | 1–80 karakter, unik, huruf kecil/angka dan `-`, format `nama-karya`. | Buat stabil sebelum publish; mengubahnya mengubah URL detail. |
 | `title` | 1–120 karakter. | Judul spesifik, bukan slogan kosong. |
-| `category` | Salah satu dari lima kategori resmi. | Pilih layanan yang paling dominan. |
+| `category` | Salah satu dari enam kategori: Web Development, IT Consulting, Video Editing, Graphic Design, AI Consulting, atau Artikel. | Pilih layanan yang paling dominan untuk karya, atau Artikel untuk tulisan. |
 | `summary` | 1–300 karakter. | Satu kalimat yang menjelaskan pekerjaan/eksplorasi. |
 | `description` | 1–10.000 karakter. | Pisahkan paragraf dengan satu baris kosong; detailkan konteks, proses, dan batasan. |
 | `image_url` | Path `/images/...` atau URL HTTPS publik permanen dari bucket `project-images` milik Supabase yang sama, maksimal 2.048 karakter. | Upload lewat panel agar URL dibuat otomatis. Signed URL ditolak agar gambar tidak kedaluwarsa. |
@@ -66,6 +66,14 @@ Hover pointer tidak menghentikan rotasi hero. Setelah panah atau nomor slide dip
 | `published` | Boolean. | Akses publik hanya untuk `true`. |
 | `is_concept` | Boolean. | Aktifkan untuk karya konsep/non-klien. |
 | `sort_order` | Bilangan bulat 0–100.000; angka kecil tampil lebih dulu di katalog dan karya terkait. | Tidak mengubah Latest Feed. Sisakan jarak, misalnya 10, 20, 30, agar mudah menyisipkan karya di katalog. |
+
+### Tulisan dan tags
+
+Pilih **Artikel** di editor untuk mengisi judul dan isi tulisan. Tulisan yang diterbitkan muncul di Latest Feed sesuai waktu pembuatan, filter Artikel di katalog, serta halaman detail `/proyek/[slug]`. Pisahkan paragraf dengan satu baris kosong. Gambar sampul bisa diunggah seperti proyek biasa; jika memakai placeholder bawaan, detail artikel langsung menampilkan tulisan tanpa sampul kosong. Artikel tidak ditambahkan sebagai layanan di form kontak.
+
+Ketik beberapa tags dengan koma, misalnya `Website, Tips, Catatan`. Koma dan spasi tetap terlihat saat mengetik; saat disimpan, spasi tepi, tag kosong, dan duplikat dirapikan. Batas tetap 20 tag, maksimal 32 karakter per tag.
+
+Untuk database yang sudah berjalan, jalankan `supabase/migrations/002_article_category.sql` sebelum menyimpan kategori Artikel. Migrasi hanya memperluas kategori yang diizinkan, tidak mengubah proyek, Storage, atau akses admin. Lihat [panduan deployment](DEPLOYMENT.md#menambahkan-kategori-artikel-pada-database-yang-sudah-berjalan).
 
 ### Gambar proyek
 
@@ -95,7 +103,7 @@ Form kontak tidak mengirim pesan dari server. Form membuat brief, lalu:
 
 ## Setup data awal
 
-Migration `supabase/migrations/001_portfolio.sql` membuat schema dan row pengaturan dasar, tetapi tabel `projects` mulai kosong. Data contoh di `src/lib/demo-data.ts` dipakai sebagai fallback/demo ketika Supabase belum ada; contoh yang bertanda konsep tidak boleh dipresentasikan sebagai pekerjaan klien.
+Jalankan migrasi sesuai urutan: `001_portfolio.sql` membuat schema dan row pengaturan dasar dengan tabel `projects` kosong, kemudian `002_article_category.sql` menambahkan kategori Artikel. Data contoh di `src/lib/demo-data.ts` dipakai sebagai fallback/demo ketika Supabase belum ada; contoh yang bertanda konsep tidak boleh dipresentasikan sebagai pekerjaan klien. Artikel demo diberi label contoh dan tidak dimasukkan ke database produksi.
 
 Jika suatu saat ingin memasukkan sample seed ke Supabase, buat dan review `supabase/seed.sql` secara terpisah dari `demoProjects`. Jangan mengubah migration, source aplikasi, atau data demo hanya untuk membuat klaim portofolio terlihat lebih penuh. Scope dokumentasi ini tidak membuat seed baru.
 
