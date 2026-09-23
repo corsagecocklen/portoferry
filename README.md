@@ -11,6 +11,7 @@ Website portofolio dan layanan Ferry Kurniawan untuk **Web Development**, **IT C
 - Recent Works bergaya postingan sosial di beranda menampilkan semua proyek `published` dari seluruh kategori, diurutkan dari waktu penambahan terbaru. Tidak ada fitur unggulan atau pembatasan tiga kartu.
 - Katalog dan halaman detail untuk enam kategori: Web Development, IT Consulting, Video Editing, Graphic Design, AI Consulting, dan Artikel. Kategori Artikel untuk tulisan, bukan pilihan layanan pada form kontak.
 - Panel admin live untuk tambah, edit, hapus, draft, publish, urutan katalog, tag, dan upload gambar proyek.
+- Hingga enam gambar tambahan di antara paragraf, dengan posisi, teks alternatif, dan keterangan. Thumbnail feed 1:1 dapat digeser dan di-zoom tanpa mengubah gambar sampul asli; aktifkan lewat migrasi `003_post_media.sql`.
 - Pengaturan status ketersediaan, WhatsApp, email, dan Instagram dari panel admin.
 - Form kontak yang menyiapkan brief untuk disalin/diunduh; jika kontak diisi, form membuka WhatsApp atau email agar pengunjung mengirim sendiri.
 - Mode demo di `/admin/demo` untuk mencoba CRUD di browser lokal tanpa menyentuh situs publik.

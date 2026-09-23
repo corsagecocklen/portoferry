@@ -26,6 +26,7 @@ import { Logo } from "@/components/logo";
 import { categories, type Project, type ProjectInput, type SiteSettings } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
 import { settingsSchema } from "@/lib/validation";
+import { getThumbnailStyle } from "@/lib/image-crop";
 
 import { downscaleDemoImage, readDemoSnapshot, writeDemoSnapshot } from "./admin-demo-storage";
 import type { EditorResult, UploadResult } from "./admin-types";
@@ -66,7 +67,7 @@ function ProjectRow({ project, onEdit, onDelete, disabled }: { project: Project;
   return (
     <li className="admin-project-row">
       <div className="admin-project-thumb">
-        <Image src={projectImage(project)} alt="" width={112} height={80} unoptimized />
+        <Image src={projectImage(project)} alt="" width={112} height={112} unoptimized style={getThumbnailStyle(project.thumbnail_crop)} />
       </div>
       <div className="admin-project-row-main">
         <div className="admin-project-row-title">

@@ -614,7 +614,7 @@
 
 .admin-route .admin-project-thumb {
   width: 112px;
-  height: 80px;
+  height: 112px;
   overflow: hidden;
   border: 1px solid var(--admin-border);
   border-radius: 4px;
@@ -983,6 +983,34 @@
   min-width: 0;
 }
 
+.admin-route .admin-editor-fields {
+  display: grid;
+  gap: 17px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.admin-route .admin-body-preview {
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--admin-border);
+  border-radius: 5px;
+  background: var(--admin-surface-soft);
+}
+
+.admin-route .admin-body-preview > summary {
+  color: var(--admin-accent);
+  font-size: .8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.admin-route .admin-body-preview[open] > summary {
+  margin-bottom: 18px;
+}
+
 .admin-route .admin-form-grid {
   display: grid;
   gap: 13px;
@@ -1126,7 +1154,7 @@
 }
 
 .admin-route .admin-project-card-preview .project-art {
-  aspect-ratio: 1.22 / 1;
+  aspect-ratio: 1;
 }
 
 .admin-route .admin-project-card-preview .post-actions,
@@ -1453,7 +1481,7 @@
 
   .admin-route .admin-project-thumb {
     width: 70px;
-    height: 62px;
+    height: 70px;
   }
 
   .admin-route .admin-project-row-title {

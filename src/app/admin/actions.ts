@@ -26,6 +26,9 @@ function validationError(error: z.ZodError): ActionResult {
 
 function projectSaveError(error: { code?: string; message?: string } | null, category: ProjectInput["category"]): string {
   if (error?.code === "23505") return "Slug sudah dipakai proyek lain. Pilih slug berbeda.";
+  if ((error?.code === "PGRST204" || error?.code === "42703") && /body_images|thumbnail_crop/.test(error.message ?? "")) {
+    return "Gambar dalam tulisan dan crop thumbnail belum aktif di database. Jalankan migrasi 003_post_media.sql di Supabase, lalu coba simpan lagi. Isi editor tetap tersedia.";
+  }
   if (category === "Artikel" && error?.code === "23514" && error.message?.includes("projects_category_check")) {
     return "Kategori Artikel belum aktif di database. Jalankan migrasi 002_article_category.sql di Supabase, lalu coba simpan lagi.";
   }

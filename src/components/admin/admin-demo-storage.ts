@@ -4,7 +4,7 @@ import { z } from "zod";
 import { demoProjectInputSchema } from "./admin-types";
 
 const snapshotKey = "portoferry-admin-demo-v1";
-const maxDemoImageBytes = 1_000_000;
+const maxDemoImageBytes = 250_000;
 const storedProjectSchema = z.preprocess(
   (value) => {
     if (typeof value !== "object" || value === null || Array.isArray(value)) return value;

@@ -44,7 +44,7 @@ Portoferry menawarkan layanan bisnis. Dokumen Vercel menyatakan Hobby dibatasi u
 
 1. Buat project Supabase baru atau pilih project yang akan menjadi backend Portoferry.
 2. Buka **SQL Editor**.
-3. Jalankan seluruh isi [`supabase/migrations/001_portfolio.sql`](../supabase/migrations/001_portfolio.sql), lalu [`supabase/migrations/002_article_category.sql`](../supabase/migrations/002_article_category.sql). Kedua migrasi aman dijalankan ulang.
+3. Jalankan seluruh isi [`001_portfolio.sql`](../supabase/migrations/001_portfolio.sql), [`002_article_category.sql`](../supabase/migrations/002_article_category.sql), lalu [`003_post_media.sql`](../supabase/migrations/003_post_media.sql), berurutan. Ketiga migrasi aman dijalankan ulang.
 4. Pastikan tabel `projects`, `site_settings`, `admin_users`, fungsi `public.is_admin()`, policy RLS, bucket `project-images`, dan kategori Artikel berhasil disiapkan.
 
 Migration membuat satu baris `site_settings`; tabel `projects` tetap kosong sampai proyek nyata dibuat. Katalog kosong setelah tersambung bukan error dan data `/admin/demo` tidak ikut berpindah. Tidak ada seed klien fiktif yang perlu dipublikasikan. Deploy Vercel tidak menjalankan migration SQL secara otomatis.
@@ -56,6 +56,23 @@ Untuk situs yang sudah memakai migrasi `001`, jalankan **hanya** [`002_article_c
 Setelah berhasil, refresh `/admin`, pilih **Tambah proyek → Kategori → Artikel**, lalu isi judul, ringkasan, dan isi tulisan. Simpan sebagai draft dahulu dan buka ulang untuk memeriksa isinya sebelum diterbitkan. Bila muncul pesan “Kategori Artikel belum aktif di database”, migrasi belum diterapkan pada project Supabase yang dipakai production; push/deploy Vercel saja tidak menjalankan SQL ini.
 
 Regresi SQL tersedia di `tests/sql/article-migration.sql`; jalankan hanya pada database uji sekali pakai yang sudah menerapkan migrasi `001`, bukan database produksi. Pengujian memeriksa penerimaan Artikel, penolakan kategori lain, keamanan menjalankan migrasi ulang, serta data dan policy yang tetap utuh.
+
+### Menambahkan gambar tulisan dan crop thumbnail
+
+Untuk situs yang sudah berjalan, buka [`003_post_media.sql`](../supabase/migrations/003_post_media.sql), salin **seluruh isi file**, lalu jalankan di **Supabase → SQL Editor → New query → Run** pada project production yang benar. Deploy Vercel tidak menjalankan langkah ini.
+
+Migrasi menambahkan `body_images` (default daftar kosong) dan `thumbnail_crop` (default tanpa crop khusus), beserta validasi struktur/jumlah gambar dan batas posisi/zoom. Judul, isi, kategori, URL sampul, gambar Storage, dan RLS/policy akses lama tidak diubah. Skrip juga menyegarkan schema cache PostgREST. Jalankan sekali sebelum menyimpan fitur media; skrip idempotent bila perlu dijalankan ulang. Migrasi `002` tetap diperlukan terpisah untuk kategori Artikel.
+
+Sesudah berhasil:
+
+1. Refresh `/admin` dan edit satu posting sebagai draft.
+2. Tambahkan tiga gambar tulisan, pilih letaknya di antara paragraf, lalu cek **Preview isi tulisan**.
+3. Upload sampul lebar, buka **Atur thumbnail 1:1**, geser/zoom, lalu **Simpan proyek**.
+4. Buka ulang dan pastikan posisi gambar serta crop tersimpan sebelum menerbitkan. Di halaman detail, sampul dan gambar tulisan tetap utuh.
+
+Sebelum migrasi, posting lama masih dapat ditampilkan dan diedit selama tidak memakai field baru. Menyimpan pengaturan media akan ditolak dengan petunjuk `003_post_media.sql`; editor mempertahankan draf. Tidak ada retry yang membuang gambar/crop tanpa pemberitahuan.
+
+Pengujian SQL ada di [`tests/sql/post-media-migration.sql`](../tests/sql/post-media-migration.sql). Jalankan **hanya pada database sekali pakai** setelah migrasi `001` dan `002`, bukan production; pengujian memeriksa idempotensi, pelestarian data/RLS/Storage, serta penolakan payload media yang tidak valid.
 
 ### Buat user admin pertama
 

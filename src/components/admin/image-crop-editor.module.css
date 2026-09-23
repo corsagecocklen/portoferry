@@ -1,0 +1,270 @@
+.editor {
+  min-width: 0;
+  border: 1px solid var(--admin-border, #263038);
+  border-radius: 6px;
+  color: var(--admin-text, #f4f5f6);
+  background: var(--admin-surface-soft, #0d1317);
+}
+
+.summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  min-height: 48px;
+  padding: 11px 14px;
+  color: var(--admin-text, #f4f5f6);
+  font-size: .78rem;
+  font-weight: 750;
+  line-height: 1.45;
+  list-style: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.summary::-webkit-details-marker {
+  display: none;
+}
+
+.summary::marker {
+  content: "";
+}
+
+.summary:focus-visible,
+.resetButton:focus-visible,
+.range:focus-visible {
+  outline: 2px solid var(--admin-accent, #afd9f2);
+  outline-offset: 3px;
+}
+
+.summaryLabel {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.chevron {
+  flex: 0 0 auto;
+  color: var(--admin-accent, #afd9f2);
+  font-size: 1.15rem;
+  line-height: 1;
+  transition: transform .18s ease;
+}
+
+.editor[open] .chevron {
+  transform: rotate(180deg);
+}
+
+.content {
+  display: grid;
+  gap: 15px;
+  min-width: 0;
+  padding: 15px;
+  border-top: 1px solid var(--admin-border, #263038);
+}
+
+.toolbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  min-width: 0;
+}
+
+.instructions {
+  min-width: 0;
+  color: var(--admin-muted, #9aa5ad);
+  font-size: .72rem;
+  line-height: 1.55;
+}
+
+.resetButton {
+  flex: 0 0 auto;
+  min-height: 40px;
+  padding: 8px 11px;
+  border: 1px solid var(--admin-border, #263038);
+  border-radius: 5px;
+  color: var(--admin-accent, #afd9f2);
+  background: transparent;
+  font-size: .72rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.resetButton:hover:not(:disabled) {
+  border-color: var(--admin-accent, #afd9f2);
+  background: #ffffff08;
+}
+
+.resetButton:disabled {
+  cursor: not-allowed;
+  opacity: .58;
+}
+
+.previewControls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 54px;
+  align-items: stretch;
+  gap: 12px;
+  width: min(100%, 360px);
+  min-width: 0;
+}
+
+.preview {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  aspect-ratio: 1;
+  border: 1px solid #33434d;
+  border-radius: 5px;
+  background: #080d10;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.preview[data-disabled="true"] {
+  cursor: not-allowed;
+  touch-action: auto;
+}
+
+.previewImage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.statusMessage {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  color: var(--admin-muted, #9aa5ad);
+  font-size: .72rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.dragHint {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  max-width: calc(100% - 16px);
+  padding: 4px 7px;
+  border: 1px solid #ffffff25;
+  border-radius: 4px;
+  color: #f4f5f6;
+  background: #080c0fbd;
+  font-size: .62rem;
+  line-height: 1.3;
+  pointer-events: none;
+}
+
+.verticalField,
+.rangeField {
+  display: grid;
+  min-width: 0;
+  gap: 7px;
+  color: var(--admin-text, #f4f5f6);
+  font-size: .7rem;
+  font-weight: 700;
+}
+
+.verticalField {
+  grid-template-rows: auto minmax(0, 1fr);
+  justify-items: center;
+}
+
+.rangeField {
+  width: 100%;
+}
+
+.horizontalField {
+  width: min(100%, 360px);
+}
+
+.zoomField {
+  max-width: 360px;
+}
+
+.rangeLabel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  min-width: 0;
+  line-height: 1.35;
+}
+
+.verticalField .rangeLabel {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  width: 100%;
+  font-size: .6rem;
+  text-align: center;
+}
+
+.rangeLabel output {
+  color: var(--admin-muted, #9aa5ad);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.range {
+  width: 100%;
+  min-width: 0;
+  min-height: 28px;
+  margin: 0;
+  padding: 0;
+  accent-color: var(--admin-accent, #afd9f2);
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.range:disabled {
+  cursor: not-allowed;
+}
+
+.verticalRange {
+  width: 28px;
+  height: 100%;
+  min-height: 0;
+  writing-mode: vertical-lr;
+  direction: ltr;
+  touch-action: pan-x;
+}
+
+@media (max-width: 420px) {
+  .content {
+    gap: 13px;
+    padding: 12px;
+  }
+
+  .toolbar {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 9px;
+  }
+
+  .resetButton {
+    align-self: flex-start;
+  }
+
+  .previewControls {
+    grid-template-columns: minmax(0, 1fr) 48px;
+    gap: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chevron {
+    transition: none;
+  }
+}

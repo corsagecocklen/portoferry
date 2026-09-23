@@ -2,6 +2,7 @@
 
 import { ArrowUpRight, Bookmark, Heart, Layers, MoreHorizontal } from "lucide-react";
 import Image from "next/image";
+import { getThumbnailStyle } from "@/lib/image-crop";
 import Link from "next/link";
 import { useState } from "react";
 import type { Project } from "@/lib/types";
@@ -22,7 +23,7 @@ export function ProjectCard({ project, index = 0 }: { project: Project; index?: 
   return <article className="project-card">
     <div className="post-header"><Image className="post-avatar" src="/images/ferry-avatar-20260923.webp" alt="" width={30} height={30} /><div><span className="post-author">ferry.kurniawan</span><span className="post-subtitle">{project.category}</span></div><span className="post-index mono">0{index + 1}</span><button className="icon-button post-more" onClick={share} aria-label={`Salin tautan ${project.title}`}><MoreHorizontal size={19} /></button></div>
     <Link href={`/proyek/${project.slug}`} className="project-art" aria-label={`${isArticle ? "Baca artikel" : "Lihat proyek"} ${project.title}`}>
-      <Image src={project.image_url || "/images/project-placeholder.svg"} alt={project.title} fill sizes="(max-width: 640px) 100vw, (max-width: 1000px) 50vw, 33vw" unoptimized={project.image_url.startsWith("https:")} />
+      <Image src={project.image_url || "/images/project-placeholder.svg"} alt={project.title} fill sizes="(max-width: 640px) 100vw, (max-width: 1000px) 50vw, 33vw" unoptimized={project.image_url.startsWith("https:")} style={getThumbnailStyle(project.thumbnail_crop)} />
       {project.is_concept && <span className="concept-badge">Studi konsep</span>}
       <span className="project-hover"><ArrowUpRight size={28} /></span>
       <span className="project-stack" aria-hidden="true"><Layers size={17} /></span>

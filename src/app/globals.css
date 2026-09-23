@@ -155,8 +155,8 @@ dialog::backdrop { background: #03080cd9; backdrop-filter: blur(7px); }
 .post-index { color: #72808a; margin-left: auto; font-size: 9px; }
 .post-more { padding: 5px 0 5px 6px; }
 .project-art { display: block; position: relative; overflow: hidden; width: 100%; aspect-ratio: 1; border-radius: 3px; background: #152129; }
-.project-art > img { object-fit: cover; transition: transform .55s ease, filter .55s ease; }
-.project-art:hover > img { transform: scale(1.04); filter: brightness(.75); }
+.project-art > img { object-fit: cover; transition: filter .55s ease; }
+.project-art:hover > img { filter: brightness(.75); }
 .concept-badge { position: absolute; top: 12px; left: 12px; font-size: 8px; padding: 3px 7px; border: 1px solid #ffffff2e; border-radius: 2px; background: #090e12c9; color: #d4dce2; }
 .project-hover { position: absolute; left: 50%; top: 50%; width: 58px; height: 58px; display: grid; place-items: center; border: 1px solid #ffffff61; border-radius: 50%; transform: translate(-50%, -40%); opacity: 0; transition: all .3s; background: #07101a38; }
 .project-art:hover .project-hover, .project-art:focus-visible .project-hover { opacity: 1; transform: translate(-50%, -50%); }
@@ -301,7 +301,8 @@ dialog::backdrop { background: #03080cd9; backdrop-filter: blur(7px); }
 .concept-tag { color: var(--accent); border-color: #537283; }
 .detail-cover { background: #101a22; border: 1px solid var(--border); border-radius: 5px; overflow: hidden; }
 .detail-cover img { width: 100%; height: auto; max-height: 780px; object-fit: contain; }
-.detail-story { display: grid; grid-template-columns: 1fr 1.4fr; gap: 80px; padding-block: 67px; }
+.detail-story { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 80px; padding-block: 67px; }
+.detail-story > div { min-width: 0; }
 .detail-story h2 { font-size: 37px; }
 .detail-story p { color: #a6b5be; line-height: 2; font-size: 13px; white-space: pre-line; }
 .detail-story p + p { margin-top: 22px; }

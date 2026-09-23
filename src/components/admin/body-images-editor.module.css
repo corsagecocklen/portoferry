@@ -1,0 +1,241 @@
+.editor {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid var(--admin-border, #263038);
+  border-radius: 6px;
+  background: var(--admin-surface-soft, #0d1317);
+}
+
+.headingRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  min-width: 0;
+}
+
+.headingRow h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--admin-text, #f4f5f6);
+  font-size: .92rem;
+}
+
+.headingRow h3 svg {
+  flex: 0 0 auto;
+  color: var(--admin-accent, #afd9f2);
+}
+
+.headingRow > div {
+  min-width: 0;
+}
+
+.headingRow p,
+.helpText {
+  margin: 6px 0 0;
+  color: var(--admin-muted, #9aa5ad);
+  font-size: .72rem;
+  line-height: 1.55;
+}
+
+.count {
+  flex: 0 0 auto;
+  padding: 5px 8px;
+  border: 1px solid var(--admin-border, #263038);
+  border-radius: 4px;
+  color: var(--admin-accent, #afd9f2);
+  font-size: .72rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.uploadField,
+.field {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+  color: var(--admin-text, #f4f5f6);
+  font-size: .74rem;
+  font-weight: 700;
+}
+
+.uploadField input,
+.field input,
+.field select {
+  width: 100%;
+  min-width: 0;
+  min-height: 43px;
+  padding: 10px 12px;
+  border: 1px solid var(--admin-border, #263038);
+  border-radius: 5px;
+  color: var(--admin-text, #f4f5f6);
+  background: var(--admin-surface, #10171c);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.uploadField input[type="file"],
+.field input[type="file"] {
+  padding: 7px;
+  color: var(--admin-muted, #9aa5ad);
+}
+
+.uploadField input[type="file"]::file-selector-button,
+.field input[type="file"]::file-selector-button {
+  min-height: 28px;
+  margin-right: 10px;
+  padding: 4px 9px;
+  border: 1px solid var(--admin-border, #263038);
+  border-radius: 4px;
+  color: var(--admin-text, #f4f5f6);
+  background: #18232a;
+  cursor: pointer;
+}
+
+.helpText {
+  margin-top: -2px;
+}
+
+.imageList {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.imageItem {
+  display: grid;
+  gap: 13px;
+  min-width: 0;
+  padding: 15px;
+  border: 1px solid var(--admin-border, #263038);
+  border-radius: 5px;
+  background: var(--admin-surface, #10171c);
+}
+
+.itemHeading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+}
+
+.itemHeading > strong {
+  flex: 0 0 auto;
+  padding-top: 7px;
+  color: var(--admin-accent, #afd9f2);
+  font-size: .76rem;
+}
+
+.orderControls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+  min-width: 0;
+}
+
+.orderButton,
+.removeButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 0;
+  min-height: 36px;
+  padding: 7px 9px;
+  border: 1px solid var(--admin-border, #263038);
+  border-radius: 4px;
+  color: var(--admin-text, #f4f5f6);
+  background: #131d23;
+  font-size: .68rem;
+  font-weight: 700;
+  line-height: 1.3;
+  text-align: left;
+}
+
+.orderButton:hover:not(:disabled) {
+  border-color: #527a93;
+  background: #17252d;
+}
+
+.removeButton {
+  justify-self: start;
+  color: var(--admin-danger, #f08a8a);
+  background: transparent;
+}
+
+.removeButton:hover:not(:disabled) {
+  border-color: #623d43;
+  background: #27171b;
+}
+
+.orderButton:disabled,
+.removeButton:disabled {
+  cursor: not-allowed;
+  opacity: .55;
+}
+
+.optional {
+  color: var(--admin-muted, #9aa5ad);
+  font-weight: 500;
+}
+
+.error {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 1px solid #623d43;
+  border-radius: 4px;
+  color: var(--admin-danger, #f08a8a);
+  background: #27171b;
+  font-size: .72rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.error p {
+  margin: 0;
+}
+
+.status {
+  min-height: 0;
+  margin: 0;
+  color: var(--admin-muted, #9aa5ad);
+  font-size: .72rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 540px) {
+  .editor {
+    padding: 13px;
+  }
+
+  .imageItem {
+    padding: 12px;
+  }
+
+  .itemHeading {
+    display: grid;
+    gap: 8px;
+  }
+
+  .itemHeading > strong {
+    padding-top: 0;
+  }
+
+  .orderControls {
+    justify-content: flex-start;
+  }
+
+  .orderButton span {
+    overflow-wrap: anywhere;
+  }
+}

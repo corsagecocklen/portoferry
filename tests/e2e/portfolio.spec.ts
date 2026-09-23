@@ -182,9 +182,9 @@ test("admin demo supports validated create, upload, persistent edit, and delete 
   await editor.getByRole("textbox", { name: /^Ringkasan singkat/ }).fill("Contoh untuk memverifikasi alur admin.");
   await editor.getByRole("textbox", { name: /^Cerita proyek/ }).fill("Ini data pengujian lokal. Tidak boleh masuk ke situs publik.");
   await expect(page.locator("#project-slug")).toHaveValue("proyek-pengujian-otomatis");
-  await page.locator('input[type="file"]').setInputFiles({ name: "unsafe.svg", mimeType: "image/svg+xml", buffer: Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"/>') });
+  await page.getByLabel("Unggah gambar sampul", { exact: true }).setInputFiles({ name: "unsafe.svg", mimeType: "image/svg+xml", buffer: Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"/>') });
   await expect(page.getByText("Gunakan gambar JPG, PNG, atau WebP. SVG tidak didukung.")).toBeVisible();
-  await page.locator('input[type="file"]').setInputFiles(path.join(process.cwd(), "public/images/project-kopi.webp"));
+  await page.getByLabel("Unggah gambar sampul", { exact: true }).setInputFiles(path.join(process.cwd(), "public/images/project-kopi.webp"));
   await expect(page.locator("#project-image-url")).toHaveValue(/^data:image\/jpeg;base64,/);
   await page.getByLabel(/Tandai terbit \(demo\)/).check();
   await page.getByRole("button", { name: "Simpan proyek", exact: true }).click();

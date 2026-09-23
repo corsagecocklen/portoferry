@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { categories } from "./types";
+import { maxBodyImages } from "./project-body";
 
 const localImagePathPattern = /^\/images\/[A-Za-z0-9][A-Za-z0-9._/-]*$/;
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -60,8 +61,37 @@ function isSupabaseProjectImageUrl(value: string): boolean {
   }
 }
 
-function isAllowedImageUrl(value: string): boolean {
+export function isAllowedImageUrl(value: string): boolean {
   return isLocalImagePath(value) || isSupabaseProjectImageUrl(value);
+}
+
+export function isDemoImageUrl(value: string): boolean {
+  return value.length <= 1_400_000 && /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/]+=*$/.test(value);
+}
+
+export const imageUrlSchema = z.string().trim()
+  .min(1, "Gambar wajib diisi.")
+  .max(2_048, "URL gambar maksimal 2.048 karakter.")
+  .refine(isAllowedImageUrl, "Gambar hanya boleh berasal dari /images/ atau bucket Supabase project-images.");
+
+export const thumbnailCropSchema = z.object({
+  x: z.number().min(0).max(100),
+  y: z.number().min(0).max(100),
+  zoom: z.number().min(1).max(3),
+}).strict();
+
+export const bodyImageSchema = z.object({
+  id: z.string().uuid("ID gambar tidak valid."),
+  url: imageUrlSchema,
+  alt: z.string().trim().min(1, "Isi teks alternatif untuk setiap gambar.").max(300, "Teks alternatif maksimal 300 karakter."),
+  caption: z.string().trim().max(300, "Keterangan gambar maksimal 300 karakter."),
+  after_paragraph: z.number().int().min(0).max(10_000),
+}).strict();
+
+export function bodyImagesSchemaWith(imageSchema = imageUrlSchema) {
+  return z.array(bodyImageSchema.extend({ url: imageSchema }))
+    .max(maxBodyImages, `Maksimal ${maxBodyImages} gambar dalam tulisan.`)
+    .refine((images) => new Set(images.map((image) => image.id)).size === images.length, "ID gambar tidak boleh duplikat.");
 }
 
 function isSafeProjectUrl(value: string): boolean {
@@ -191,12 +221,9 @@ export const projectSchema = z
       .trim()
       .min(1, "Deskripsi wajib diisi.")
       .max(10_000, "Deskripsi maksimal 10.000 karakter."),
-    image_url: z
-      .string()
-      .trim()
-      .min(1, "Gambar wajib diisi.")
-      .max(2_048, "URL gambar maksimal 2.048 karakter.")
-      .refine(isAllowedImageUrl, "Gambar hanya boleh berasal dari /images/ atau bucket Supabase project-images."),
+    image_url: imageUrlSchema,
+    body_images: bodyImagesSchemaWith().optional(),
+    thumbnail_crop: thumbnailCropSchema.nullable().optional(),
     project_url: z
       .string()
       .trim()

@@ -1,5 +1,5 @@
 import type { Project, ProjectInput } from "@/lib/types";
-import { projectSchema } from "@/lib/validation";
+import { bodyImagesSchemaWith, isDemoImageUrl, projectSchema } from "@/lib/validation";
 import { z } from "zod";
 
 export type EditorResult =
@@ -20,6 +20,8 @@ export function projectToInput(project: Project): ProjectInput {
     summary: project.summary,
     description: project.description,
     image_url: project.image_url,
+    ...(project.body_images !== undefined ? { body_images: project.body_images.map((image) => ({ ...image })) } : {}),
+    ...(project.thumbnail_crop !== undefined ? { thumbnail_crop: project.thumbnail_crop ? { ...project.thumbnail_crop } : null } : {}),
     project_url: project.project_url,
     year: project.year,
     tags: [...project.tags],
@@ -69,11 +71,14 @@ export function textToTags(value: string): string[] {
     .filter((tag, index, all) => all.indexOf(tag) === index);
 }
 
+const demoImageUrlSchema = z.string().max(1_400_000, "Gambar demo terlalu besar.").refine(
+  (value) => isDemoImageUrl(value) || projectSchema.shape.image_url.safeParse(value).success,
+  "Gunakan gambar yang diunggah atau path /images/ yang valid.",
+);
+
 export const demoProjectInputSchema = projectSchema.extend({
-  image_url: z.string().max(1_400_000, "Gambar demo terlalu besar.").refine(
-    (value) => /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/]+=*$/.test(value) || projectSchema.shape.image_url.safeParse(value).success,
-    "Gunakan gambar yang diunggah atau path /images/ yang valid.",
-  ),
+  image_url: demoImageUrlSchema,
+  body_images: bodyImagesSchemaWith(demoImageUrlSchema).optional(),
 });
 
 export function validateProjectInput(input: ProjectInput, mode: "live" | "demo" = "live"): Partial<Record<ProjectField, string>> {

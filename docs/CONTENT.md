@@ -62,6 +62,8 @@ Headline hero: “Website Optimal, Bisnis Maksimal.”, “Dari ide, jadi websit
 | `summary` | 1–300 karakter. | Satu kalimat yang menjelaskan pekerjaan/eksplorasi. |
 | `description` | 1–10.000 karakter. | Pisahkan paragraf dengan satu baris kosong; detailkan konteks, proses, dan batasan. |
 | `image_url` | Path `/images/...` atau URL HTTPS publik permanen dari bucket `project-images` milik Supabase yang sama, maksimal 2.048 karakter. | Upload lewat panel agar URL dibuat otomatis. Signed URL ditolak agar gambar tidak kedaluwarsa. |
+| `body_images` | Maksimal enam gambar dengan ID unik, URL aman, teks alternatif wajib (1–300 karakter), keterangan opsional (maksimal 300 karakter), dan posisi setelah paragraf. | Posisi 0 berarti sebelum paragraf pertama; pada posisi yang sama, urutan daftar menentukan urutan tampil. |
+| `thumbnail_crop` | Opsional: posisi `x`/`y` 0–100 persen dan `zoom` 1–3; `null` memakai crop tengah bawaan. | Berlaku pada thumbnail persegi, bukan gambar penuh pada halaman detail atau gambar share. |
 | `project_url` | Opsional; kosong atau URL HTTPS maksimal 2.048 karakter. | Tautkan hasil yang boleh dilihat publik; jangan menautkan footage privat. |
 | `year` | Bilangan bulat 1900–2200. | Tahun pengerjaan atau tahun studi konsep. |
 | `tags` | Maksimal 20 tag, tiap tag maksimal 32 karakter, tidak boleh duplikat. | Pisahkan dengan koma, misalnya `Next.js, Landing page`. |
@@ -78,6 +80,24 @@ Ketik beberapa tags dengan koma, misalnya `Website, Tips, Catatan`. Koma dan spa
 Untuk database yang sudah berjalan, jalankan `supabase/migrations/002_article_category.sql` sebelum menyimpan kategori Artikel. Migrasi hanya memperluas kategori yang diizinkan, tidak mengubah proyek, Storage, atau akses admin. Lihat [panduan deployment](DEPLOYMENT.md#menambahkan-kategori-artikel-pada-database-yang-sudah-berjalan).
 
 ### Gambar proyek
+
+#### Gambar di tengah tulisan
+
+1. Tulis isi posting seperti biasa; beri satu baris kosong di antara paragraf.
+2. Di **Gambar dalam tulisan**, pilih **Unggah gambar tulisan**. Bisa memilih beberapa file sekaligus, hingga **6 gambar tambahan** di luar sampul, masing-masing JPG/PNG/WebP maksimal 5 MB.
+3. Isi **Teks alternatif** yang menjelaskan gambar dan **Keterangan** bila diperlukan.
+4. Pilih **Posisi gambar**: sebelum paragraf pertama atau setelah paragraf tertentu. Jika beberapa gambar berada di posisi yang sama, panah mengubah urutannya. Bila paragraf dihapus, gambar yang posisinya melewati akhir tulisan tetap ditampilkan di akhir.
+5. Buka **Preview isi tulisan**, lalu simpan posting. Mengganti gambar mempertahankan teks dan posisinya; **Lepas gambar dari draf** tidak menghapus file Storage.
+
+Gambar isi tulisan tampil utuh sesuai rasio aslinya pada halaman detail, bukan sebagai galeri terpisah di akhir. Tidak perlu menulis HTML atau Markdown. Jika sebagian upload gagal, gambar yang berhasil tetap ada di draf dan pesan menjelaskan file yang gagal.
+
+#### Crop thumbnail feed
+
+Upload sampul melalui **Unggah gambar sampul**, lalu buka **Atur thumbnail 1:1**. Seret gambar memakai mouse/jari atau gunakan penggeser **Posisi horizontal**, **Posisi vertikal**, dan **Zoom thumbnail**. Semua penggeser mendukung keyboard. Preview kartu menggunakan crop dan rasio persegi yang sama dengan feed. **Atur ulang** mengembalikan crop tengah; mengganti sampul juga mereset crop agar posisi gambar lama tidak diterapkan ke gambar baru.
+
+Crop disimpan sebagai pengaturan, bukan file gambar baru: gambar asli, sampul halaman detail, dan metadata share tetap utuh. Pengaturan baru tersimpan setelah **Simpan proyek**; membatalkan editor tidak menyimpan perubahan.
+
+Aktifkan penyimpanannya dengan [`003_post_media.sql`](../supabase/migrations/003_post_media.sql); lihat [langkah aktivasi](DEPLOYMENT.md#menambahkan-gambar-tulisan-dan-crop-thumbnail). Posting lama tetap bisa dibaca dan diedit tanpa fitur media sebelum migrasi. Jika mencoba menyimpan media sebelum migrasi, editor menampilkan pesan aktivasi dan tetap menyimpan isi draf di layar, bukan diam-diam membuang pengaturan.
 
 Live menerima JPEG, PNG, atau WebP maksimal 5 MB. Bucket `project-images` bersifat publik untuk membaca gambar; upload, update, dan delete tetap dibatasi admin. Karena URL gambar publik walaupun proyek masih draft, metadata draft boleh disembunyikan tetapi gambar itu sendiri tidak boleh memuat materi rahasia.
 
@@ -105,7 +125,7 @@ Form kontak tidak mengirim pesan dari server. Form membuat brief, lalu:
 
 ## Setup data awal
 
-Jalankan migrasi sesuai urutan: `001_portfolio.sql` membuat schema dan row pengaturan dasar dengan tabel `projects` kosong, kemudian `002_article_category.sql` menambahkan kategori Artikel. Data contoh di `src/lib/demo-data.ts` dipakai sebagai fallback/demo ketika Supabase belum ada; contoh yang bertanda konsep tidak boleh dipresentasikan sebagai pekerjaan klien. Artikel demo diberi label contoh dan tidak dimasukkan ke database produksi.
+Jalankan migrasi sesuai urutan: `001_portfolio.sql` membuat schema dan row pengaturan dasar dengan tabel `projects` kosong, `002_article_category.sql` menambahkan kategori Artikel, lalu `003_post_media.sql` menambahkan pengaturan gambar tulisan dan crop. Data contoh di `src/lib/demo-data.ts` dipakai sebagai fallback/demo ketika Supabase belum ada; contoh yang bertanda konsep tidak boleh dipresentasikan sebagai pekerjaan klien. Artikel demo dan ilustrasinya diberi label contoh dan tidak dimasukkan ke database produksi. Gambar demo otomatis diperkecil hingga sekitar 250 KB per file untuk menghemat kuota browser; gambar live tidak diperkecil oleh mode demo.
 
 Jika suatu saat ingin memasukkan sample seed ke Supabase, buat dan review `supabase/seed.sql` secara terpisah dari `demoProjects`. Jangan mengubah migration, source aplikasi, atau data demo hanya untuk membuat klaim portofolio terlihat lebih penuh. Scope dokumentasi ini tidak membuat seed baru.
 

@@ -46,6 +46,38 @@ const projectInput: ProjectInput = {
   sort_order: 0,
 };
 
+function mediaImageId(index: number): string {
+  return `00000000-0000-4000-8000-${String(index).padStart(12, "0")}`;
+}
+
+const projectInputWithMedia: ProjectInput = {
+  ...projectInput,
+  body_images: [
+    {
+      id: mediaImageId(1),
+      url: "/images/body-one.webp",
+      alt: "First body image",
+      caption: "First caption",
+      after_paragraph: 1,
+    },
+    {
+      id: mediaImageId(2),
+      url: "/images/body-two.webp",
+      alt: "Second body image",
+      caption: "Second caption",
+      after_paragraph: 3,
+    },
+    {
+      id: mediaImageId(3),
+      url: "/images/body-three.webp",
+      alt: "Third body image",
+      caption: "Third caption",
+      after_paragraph: 5,
+    },
+  ],
+  thumbnail_crop: { x: 38.5, y: 61, zoom: 1.75 },
+};
+
 const settingsInput: SiteSettings = {
   whatsapp: "12025550100",
   email: "hello@example.com",
@@ -185,6 +217,139 @@ describe("admin server actions", () => {
     expect(mocks.revalidatePath).toHaveBeenNthCalledWith(2, "/proyek");
     expect(mocks.revalidatePath).toHaveBeenNthCalledWith(3, "/proyek/[slug]", "page");
     expect(mocks.revalidatePath).toHaveBeenNthCalledWith(4, "/layanan/[slug]", "page");
+  });
+
+  it("persists body images and thumbnail crop on both create and update", async () => {
+    const created = savedProject(projectInputWithMedia);
+    const insertChain = {
+      insert: vi.fn(),
+      select: vi.fn(),
+      single: vi.fn().mockResolvedValue({ data: created, error: null }),
+    };
+    insertChain.insert.mockReturnValue(insertChain);
+    insertChain.select.mockReturnValue(insertChain);
+    mocks.createClient.mockResolvedValue({ from: vi.fn().mockReturnValue(insertChain) });
+
+    await expect(saveProject(null, projectInputWithMedia)).resolves.toEqual({ success: true, data: created });
+    expect(insertChain.insert).toHaveBeenCalledWith(projectInputWithMedia);
+
+    const id = "4d3c745a-7711-4000-8000-000000000001";
+    const updated = savedProject({ ...projectInputWithMedia, id });
+    const updateChain = {
+      update: vi.fn(),
+      eq: vi.fn(),
+      select: vi.fn(),
+      single: vi.fn().mockResolvedValue({ data: updated, error: null }),
+    };
+    updateChain.update.mockReturnValue(updateChain);
+    updateChain.eq.mockReturnValue(updateChain);
+    updateChain.select.mockReturnValue(updateChain);
+    mocks.createClient.mockResolvedValue({ from: vi.fn().mockReturnValue(updateChain) });
+
+    await expect(saveProject(id, projectInputWithMedia)).resolves.toEqual({ success: true, data: updated });
+    expect(updateChain.update).toHaveBeenCalledWith(projectInputWithMedia);
+    expect(updateChain.eq).toHaveBeenCalledWith("id", id);
+  });
+
+  it("keeps explicit empty body images and null crop in project updates", async () => {
+    const id = "4d3c745a-7711-4000-8000-000000000001";
+    const clearedInput: ProjectInput = { ...projectInput, body_images: [], thumbnail_crop: null };
+    const chain = {
+      update: vi.fn(),
+      eq: vi.fn(),
+      select: vi.fn(),
+      single: vi.fn().mockResolvedValue({ data: savedProject({ ...clearedInput, id }), error: null }),
+    };
+    chain.update.mockReturnValue(chain);
+    chain.eq.mockReturnValue(chain);
+    chain.select.mockReturnValue(chain);
+    mocks.createClient.mockResolvedValue({ from: vi.fn().mockReturnValue(chain) });
+
+    await expect(saveProject(id, clearedInput)).resolves.toEqual({
+      success: true,
+      data: savedProject({ ...clearedInput, id }),
+    });
+    expect(chain.update).toHaveBeenCalledWith(clearedInput);
+    expect(chain.update.mock.calls[0][0]).toHaveProperty("body_images", []);
+    expect(chain.update.mock.calls[0][0]).toHaveProperty("thumbnail_crop", null);
+  });
+
+  it("blocks unsafe or malformed post media before authorization or database access", async () => {
+    const invalidMediaInputs: ProjectInput[] = [
+      {
+        ...projectInput,
+        body_images: [{
+          id: mediaImageId(1),
+          url: "data:image/svg+xml;base64,PHN2Zz4=",
+          alt: "SVG is not an uploaded image",
+          caption: "",
+          after_paragraph: 1,
+        }],
+      },
+      { ...projectInput, thumbnail_crop: { x: 101, y: 50, zoom: 1 } },
+      { ...projectInput, body_images: [{
+        id: mediaImageId(1),
+        url: "/images/body.webp",
+        alt: " ",
+        caption: "",
+        after_paragraph: 1,
+      }] },
+    ];
+
+    for (const input of invalidMediaInputs) {
+      const result = await saveProject(null, input);
+      expect(result.success).toBe(false);
+    }
+    expect(mocks.requireAdmin).not.toHaveBeenCalled();
+    expect(mocks.createClient).not.toHaveBeenCalled();
+  });
+
+  it("explains when the post-media migration is missing for either media column", async () => {
+    const migrationErrors = [
+      {
+        id: null,
+        code: "PGRST204",
+        message: "Could not find the 'body_images' column of 'projects' in the schema cache",
+      },
+      {
+        id: null,
+        code: "42703",
+        message: 'column "body_images" of relation "projects" does not exist',
+      },
+      {
+        id: "4d3c745a-7711-4000-8000-000000000001",
+        code: "PGRST204",
+        message: "Could not find the 'thumbnail_crop' column of 'projects' in the schema cache",
+      },
+      {
+        id: "4d3c745a-7711-4000-8000-000000000001",
+        code: "42703",
+        message: 'column "thumbnail_crop" of relation "projects" does not exist',
+      },
+    ];
+
+    for (const { id, code, message } of migrationErrors) {
+      const chain = {
+        insert: vi.fn(),
+        update: vi.fn(),
+        eq: vi.fn(),
+        select: vi.fn(),
+        single: vi.fn().mockResolvedValue({ data: null, error: { code, message } }),
+      };
+      chain.insert.mockReturnValue(chain);
+      chain.update.mockReturnValue(chain);
+      chain.eq.mockReturnValue(chain);
+      chain.select.mockReturnValue(chain);
+      mocks.createClient.mockResolvedValue({ from: vi.fn().mockReturnValue(chain) });
+
+      const result = await saveProject(id, projectInputWithMedia);
+
+      expect(result.success).toBe(false);
+      if (result.success) throw new Error("Expected a missing-column save to fail.");
+      expect(result.error).toContain("003_post_media.sql");
+      expect(result.error).toContain("Jalankan migrasi");
+      expect(result.error).toContain("Isi editor tetap tersedia.");
+    }
   });
 
   it("accepts Article project saves only after admin authorization", async () => {
