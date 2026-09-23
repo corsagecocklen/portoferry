@@ -53,7 +53,7 @@ export const services = [
     category: "Web Development",
     number: "01",
     visual: "web",
-    eyebrow: "01 / WEB DEVELOPMENT",
+    eyebrow: "WEB DEVELOPMENT",
     heroAccent: "Website yang bekerja.",
     heroDescription:
       "Saya buat landing page, company profile, dan web app yang nyaman dibuka di HP. Kita susun halamannya agar pengunjung bisa mengenal usahamu dan menghubungi kamu.",
@@ -143,7 +143,7 @@ export const services = [
     category: "Video Editing",
     number: "02",
     visual: "video",
-    eyebrow: "02 / VIDEO EDITING",
+    eyebrow: "VIDEO EDITING",
     heroAccent: "Rapikan footage‑mu.",
     heroDescription:
       "Saya susun footage menjadi Reels, video promosi, atau dokumentasi. Potongan, audio, subtitle, dan warna dirapikan sesuai bahan serta gaya yang kamu pilih.",
@@ -233,7 +233,7 @@ export const services = [
     category: "IT Consulting",
     number: "03",
     visual: "consulting",
-    eyebrow: "03 / IT CONSULTING",
+    eyebrow: "IT CONSULTING",
     heroAccent: "Tentukan langkahnya.",
     heroDescription:
       "Saya bantu memetakan masalah IT, membandingkan pilihan sistem, dan menyusun rencana penerapan yang sesuai anggaran serta kebiasaan timmu.",

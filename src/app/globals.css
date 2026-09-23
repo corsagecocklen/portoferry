@@ -117,10 +117,9 @@ dialog::backdrop { background: #03080cd9; backdrop-filter: blur(7px); }
 .section-heading { display: flex; justify-content: space-between; gap: 30px; align-items: flex-end; margin-bottom: 48px; }
 .section-heading > p { color: var(--muted); line-height: 1.8; font-size: 12px; padding-bottom: 5px; }
 .service-list { border-top: 1px solid var(--border); }
-.service-row { display: grid; grid-template-columns: 65px 1fr 1.13fr 55px; align-items: center; gap: 18px; border-bottom: 1px solid var(--border); padding: 34px 0; position: relative; }
+.service-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.13fr) 55px; align-items: center; gap: 18px; border-bottom: 1px solid var(--border); padding: 34px 0; position: relative; }
 .service-row::before { content: ""; background: linear-gradient(90deg, #94cdeb07, transparent); position: absolute; inset: 0 -20px; opacity: 0; transition: opacity .3s; pointer-events: none; }
 .service-row:hover::before { opacity: 1; }
-.service-number { align-self: flex-start; margin-top: 8px; color: #788892; font-size: 11px; }
 .service-title { display: grid; grid-template-columns: 25px 1fr; gap: 6px 14px; }
 .service-title > svg { color: var(--accent); margin-top: 3px; }
 .service-title h3 { font-size: 24px; font-weight: 500; letter-spacing: -.05em; }
@@ -129,7 +128,7 @@ dialog::backdrop { background: #03080cd9; backdrop-filter: blur(7px); }
 .service-description > p { color: #a2aeb7; font-size: 12px; line-height: 1.9; max-width: 376px; }
 .service-tags { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 15px; }
 .service-tags > span, .tag { font-size: 9px; padding: 4px 10px; color: #a1afb9; border: 1px solid #29353e; border-radius: 3px; }
-.service-arrow { display: grid; place-items: center; width: 45px; height: 45px; border: 1px solid #35414a; border-radius: 50%; margin-left: auto; transition: all .2s; }
+.service-arrow { display: grid; place-items: center; width: 45px; height: 45px; border: 1px solid #35414a; border-radius: 50%; margin-left: auto; transition: background .2s, color .2s, border-color .2s, transform .2s; }
 .service-arrow:hover { background: var(--accent); color: var(--bg); border-color: var(--accent); transform: rotate(45deg); }
 .quick-offer { display: flex; align-items: center; gap: 11px; margin-top: 22px; color: #94a2ad; font-size: 11px; }
 .quick-offer-icon { color: var(--accent); display: flex; align-items: center; }
@@ -335,7 +334,7 @@ dialog::backdrop { background: #03080cd9; backdrop-filter: blur(7px); }
   .expertise-strip > div { gap: 15px; }
   .expertise-strip span { font-size: 10px; }
   .expertise-strip .strip-note { font-size: 21px; }
-  .service-row { grid-template-columns: 35px 1fr 1fr 42px; }
+  .service-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 45px; }
   .service-title { gap: 6px 9px; }
   .service-title h3 { font-size: 21px; }
   .project-grid { gap: 22px; }
@@ -396,14 +395,13 @@ dialog::backdrop { background: #03080cd9; backdrop-filter: blur(7px); }
   .section-heading { flex-direction: column; align-items: flex-start; gap: 20px; margin-bottom: 32px; }
   .section-heading > p { font-size: 11px; }
   .section-heading > p br { display: none; }
-  .service-row { grid-template-columns: 26px 1fr 37px; padding-block: 28px; column-gap: 10px; row-gap: 16px; }
-  .service-number { font-size: 9px; }
+  .service-row { grid-template-columns: minmax(0, 1fr) 37px; padding-block: 28px; column-gap: 10px; row-gap: 16px; }
   .service-title h3 { font-size: 23px; }
   .service-title > p { font-size: 9px; }
-  .service-description { grid-column: 2; }
+  .service-description { grid-column: 1; }
   .service-description > p { font-size: 11px; max-width: none; }
-  .service-title { grid-column: 2; }
-  .service-arrow { grid-column: 3; grid-row: 1; height: 35px; width: 35px; }
+  .service-title { grid-column: 1; }
+  .service-arrow { grid-column: 2; grid-row: 1; height: 35px; width: 35px; }
   .service-arrow svg { width: 20px; }
   .service-tags { margin-top: 12px; gap: 5px; }
   .service-tags > span { font-size: 8px; padding-inline: 7px; }

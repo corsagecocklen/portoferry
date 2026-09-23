@@ -41,7 +41,7 @@ function VideoVisual() {
   return <div className={styles.videoVisual} role="img" aria-label="Moodboard video editing, studi konsep dan bukan video playable">
     <div className={styles.videoFrame}><Image src="/images/project-jeda.webp" alt="" fill sizes="(max-width: 760px) 84vw, 430px" /></div>
     <span className={styles.conceptStamp}>STUDI KONSEP</span>
-    <div className={styles.videoMeta}><span>DI ANTARA JEDA</span><small>MOODBOARD / 01</small></div>
+    <div className={styles.videoMeta}><span>DI ANTARA JEDA</span><small>MOODBOARD</small></div>
     <div className={styles.timeline}><span /><span /><span /><span /><span /><i /></div>
   </div>;
 }

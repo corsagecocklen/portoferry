@@ -51,6 +51,10 @@ for (const service of serviceRoutes) {
     const response = await page.goto(`/layanan/${service.slug}`);
     expect(response?.status()).toBe(200);
     await expect(page.getByRole("heading", { level: 1 })).toContainText(service.title);
+    await expect(page.locator(directServiceSections).first().locator("p").first()).toHaveText(service.title.toUpperCase());
+    if (service.slug === "video-editing") {
+      await expect(page.getByText("MOODBOARD", { exact: true })).toBeVisible();
+    }
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", new RegExp(`/layanan/${service.slug}$`));
     await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", /.+/);
     await expect(page.getByRole("heading", { name: "Ruang kerja yang jelas dari awal." })).toBeVisible();
@@ -142,7 +146,7 @@ test("client-side service navigation resets the brief to the new service", async
 test("service links are reachable from landing cards, footer, and sitemap", async ({ page, request }) => {
   await page.goto("/");
   await expect(page.locator(".service-title h3")).toHaveText(serviceRoutes.map(service => service.title));
-  await expect(page.locator(".service-number")).toHaveText(["/01", "/02", "/03"]);
+  await expect(page.locator(".service-number")).toHaveCount(0);
   for (const service of serviceRoutes) {
     await expect(page.locator(".service-list").getByRole("link", { name: service.title, exact: true })).toHaveAttribute("href", `/layanan/${service.slug}`);
     await expect(page.getByRole("navigation", { name: "Halaman layanan" }).getByRole("link", { name: service.title, exact: true })).toHaveAttribute("href", `/layanan/${service.slug}`);
@@ -151,6 +155,36 @@ test("service links are reachable from landing cards, footer, and sitemap", asyn
   expect(sitemap.ok()).toBe(true);
   const xml = await sitemap.text();
   for (const service of serviceRoutes) expect(xml).toContain(`/layanan/${service.slug}</loc>`);
+});
+
+test("landing section labels omit decorative numbering and service rows stay aligned", async ({ page }) => {
+  await page.goto("/");
+  await page.evaluate(() => document.fonts.ready);
+  await expect(page.locator("#layanan .eyebrow, #proyek .eyebrow, #tentang .eyebrow")).toHaveText([
+    "YANG BISA SAYA BANTU", "DARI MEJA KERJA", "DI BALIK LAYAR",
+  ]);
+  await expect(page.locator(".service-number")).toHaveCount(0);
+
+  for (const width of [320, 390, 760, 761, 1024, 1440, 1920]) {
+    await page.setViewportSize({ width, height: 1080 });
+    const layouts = await page.locator(".service-row").evaluateAll(rows => rows.map(row => {
+      const bounds = row.getBoundingClientRect();
+      const title = row.querySelector(".service-title")!.getBoundingClientRect();
+      const description = row.querySelector(".service-description")!.getBoundingClientRect();
+      const arrow = row.querySelector(".service-arrow")!.getBoundingClientRect();
+      return {
+        alignedLeft: Math.abs(title.left - bounds.left) < 1,
+        contained: [title, description, arrow].every(box => box.left >= bounds.left && box.right <= bounds.right + 1),
+        noOverlap: title.right <= arrow.left && (innerWidth <= 760
+          ? description.top >= title.bottom
+          : description.left >= title.right && description.right <= arrow.left),
+      };
+    }));
+    expect(layouts, `Service rows fit at ${width}px`).toEqual(serviceRoutes.map(() => ({
+      alignedLeft: true, contained: true, noOverlap: true,
+    })));
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  }
 });
 
 for (const service of serviceRoutes) {
