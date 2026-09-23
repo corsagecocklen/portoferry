@@ -301,7 +301,7 @@ dialog::backdrop { background: #03080cd9; backdrop-filter: blur(7px); }
 .concept-tag { color: var(--accent); border-color: #537283; }
 .detail-cover { background: #101a22; border: 1px solid var(--border); border-radius: 5px; overflow: hidden; }
 .detail-cover img { width: 100%; height: auto; max-height: 780px; object-fit: contain; }
-.detail-story { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 80px; padding-block: 67px; }
+.detail-story { display: grid; grid-template-columns: minmax(0, 1fr); gap: 32px; max-width: 800px; padding-block: 67px; }
 .detail-story > div { min-width: 0; }
 .detail-story h2 { font-size: 37px; }
 .detail-story p { color: #a6b5be; line-height: 2; font-size: 13px; white-space: pre-line; }

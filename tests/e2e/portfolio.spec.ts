@@ -59,6 +59,35 @@ test("article category filters to a text detail with article labels and no place
   await expect(story.locator("p").first()).toContainText("konten contoh");
 });
 
+for (const slug of ["ruang-kopi", "contoh-artikel-brief-website"]) {
+  test(`detail story stays below its heading on desktop and mobile: ${slug}`, async ({ page }) => {
+    await page.goto(`/proyek/${slug}`);
+    const story = page.locator(".detail-story");
+    await expect(story.locator("p").first()).toBeVisible();
+    await page.evaluate(() => document.fonts.ready);
+
+    for (const width of [1920, 1440, 1024, 761, 760, 390, 320]) {
+      await page.setViewportSize({ width, height: 1080 });
+      const layout = await story.evaluate(element => {
+        const heading = element.querySelector("h2")!.getBoundingClientRect();
+        const body = element.children[1].getBoundingClientRect();
+        return {
+          belowHeading: body.top >= heading.bottom + 16,
+          alignedLeft: Math.abs(body.left - heading.left) < 1,
+          contained: body.right <= window.innerWidth,
+          noOverflow: document.documentElement.scrollWidth <= window.innerWidth,
+        };
+      });
+      expect(layout, `Story layout at ${width}px`).toEqual({
+        belowHeading: true,
+        alignedLeft: true,
+        contained: true,
+        noOverflow: true,
+      });
+    }
+  });
+}
+
 test("Recent Works never hides a project at mobile, two-column, or desktop widths", async ({ page }) => {
   await page.goto("/");
   const cards = page.locator(".home-project-grid .project-card:visible");
