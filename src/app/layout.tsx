@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   title: { default: "Ferry Kurniawan — Web, IT & Video | Portoferry", template: "%s | Portoferry" },
   description: "Website untuk bisnismu, bantuan IT, dan video untuk kontenmu. Kenalan dengan Ferry Kurniawan dan lihat karya di Portoferry.",
   openGraph: {
-    title: "Ferry Kurniawan — Website siap. Bisnis jalan.",
+    title: "Ferry Kurniawan — Website Optimal, Bisnis Maksimal.",
     description: "Web Development, IT Consulting, dan Video Editing. Ceritakan idemu, kita kerjakan bareng.",
     locale: "id_ID",
     type: "website",

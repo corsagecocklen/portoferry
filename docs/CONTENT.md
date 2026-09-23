@@ -10,7 +10,7 @@ Landing page memprioritaskan tiga layanan utama:
 2. **IT Consulting** — pemetaan kebutuhan, solusi sistem, dan pendampingan.
 3. **Video Editing** — Reels/TikTok, video promosi, dan dokumentasi.
 
-Fokus tiga layanan tersebut berlaku untuk hero dan daftar layanan, bukan Latest Feed. Latest Feed dan katalog menampilkan semua kategori proyek, termasuk Graphic Design dan AI Consulting.
+Fokus tiga layanan tersebut berlaku untuk hero dan daftar layanan, bukan Recent Works. Recent Works dan katalog menampilkan semua kategori proyek, termasuk Graphic Design dan AI Consulting.
 
 Gunakan kalimat yang konkret: jelaskan masalah, ruang lingkup, hasil yang benar-benar ada, dan siapa yang mengerjakan. Hindari angka, logo klien, testimoni, deadline, atau klaim “bebas revisi” jika belum disepakati. Copy “landing page dalam 1 jam” harus tetap diberi konteks: hanya untuk landing page sederhana dengan brief, teks, foto, dan lingkup yang sudah siap; pekerjaan berfitur khusus perlu waktu lebih panjang.
 
@@ -22,16 +22,18 @@ Prinsip penulisan mengikuti [No AI Slop](https://github.com/petergyang/no-ai-slo
 | --- | --- | --- |
 | Hero | `src/components/hero-carousel.tsx` | Empat slide dengan pergantian otomatis setiap 3 detik dan satu foto yang sama. Nomor slide dan panah tetap tersedia, tanpa tombol play/pause. |
 | Halaman layanan | `src/lib/services.ts` | Web Development, Video Editing, dan IT Consulting menampilkan feed karya sesuai kategori tepat setelah pembuka, lalu cakupan, proses, FAQ, dan brief yang sudah memilih layanan terkait. Tautan “Lihat proyek” langsung menuju feed; ilustrasi pembuka lebih ringkas di mobile. |
-| Latest Feed di beranda | `projects` | Semua proyek `published` dari seluruh kategori, diurutkan menurut `created_at` dari yang terbaru, tanpa batas tiga kartu. |
+| Recent Works di beranda | `projects` | Semua proyek `published` dari seluruh kategori, diurutkan menurut `created_at` dari yang terbaru, tanpa batas tiga kartu. |
 | Katalog `/proyek` | `projects` | Semua proyek `published`, termasuk Graphic Design dan AI Consulting. |
 | Detail `/proyek/[slug]` | `projects` | Satu proyek `published` dengan slug yang sesuai. |
 | Status/kontak | `site_settings` | Dibaca publik; WhatsApp, email, dan Instagram boleh kosong. |
 
-Pengunjung tidak melihat proyek draft. Setelah diterbitkan, proyek dari kategori mana pun masuk Latest Feed. Urutan feed mengikuti waktu penambahan proyek (`created_at`), bukan tahun pengerjaan atau urutan katalog (`sort_order`). Mengedit proyek tidak memindahkannya ke atas feed. Tidak ada fitur unggulan.
+Pengunjung tidak melihat proyek draft. Setelah diterbitkan, proyek dari kategori mana pun masuk Recent Works. Urutan feed mengikuti waktu penambahan proyek (`created_at`), bukan tahun pengerjaan atau urutan katalog (`sort_order`). Mengedit proyek tidak memindahkannya ke atas feed. Tidak ada fitur unggulan.
 
 Kolom database lama `featured` tetap dibiarkan untuk kompatibilitas data yang sudah ada, tetapi aplikasi tidak lagi menggunakan atau menulis nilainya. Kolom tersebut tidak memengaruhi visibilitas maupun urutan proyek.
 
 Hover pointer tidak menghentikan rotasi hero. Setelah panah atau nomor slide dipilih lewat klik, keyboard, atau sentuhan, pergantian otomatis berhenti sampai hero dimuat ulang; navigasi manual tetap tersedia. Tanpa pemilihan manual, hero berhenti sementara saat mendapat fokus keyboard, berada di luar layar, atau tab browser disembunyikan, lalu melanjutkan rotasi saat kondisi itu berakhir. Preferensi reduced motion mematikan rotasi dan transisi. Teks berganti dengan crossfade tanpa menggeser kontrol, sementara foto `ferry-landing.webp` tetap sama. Teks hero dan halaman layanan saat ini dikelola di kode, bukan panel admin.
+
+Headline hero: “Website Optimal, Bisnis Maksimal.”, “Dari ide, jadi website.”, “Ide Menarik, Siap Naikkan Trafik.”, dan “Sistem Andal, Kinerja Maksimal.” Status tersedia di hero dan kontak memakai “Siap Bekerja • Di Kantor / Hibrid / Jarak Jauh / Freelance”; ketika ketersediaan dimatikan di admin, pesan jadwal tetap menggantikan status siap bekerja.
 
 ## Live admin versus demo
 
@@ -47,7 +49,7 @@ Hover pointer tidak menghentikan rotasi hero. Setelah panah atau nomor slide dip
 3. Isi field sesuai aturan berikut.
 4. Gunakan **Preview** untuk mengecek kartu.
 5. Simpan sebagai draft untuk review; centang **Terbitkan** hanya ketika teks dan aset sudah siap.
-6. Proyek terbit otomatis masuk Latest Feed untuk semua kategori, dari yang terbaru. **Urutan katalog** hanya mengatur daftar katalog dan karya terkait, bukan feed beranda.
+6. Proyek terbit otomatis masuk Recent Works untuk semua kategori, dari yang terbaru. **Urutan katalog** hanya mengatur daftar katalog dan karya terkait, bukan feed beranda.
 7. Centang **Studi konsep** untuk eksplorasi mandiri, moodboard, atau ilustrasi yang bukan proyek klien. Label tersebut tampil di kartu dan halaman detail.
 
 ### Field dan batas validasi
@@ -65,11 +67,11 @@ Hover pointer tidak menghentikan rotasi hero. Setelah panah atau nomor slide dip
 | `tags` | Maksimal 20 tag, tiap tag maksimal 32 karakter, tidak boleh duplikat. | Pisahkan dengan koma, misalnya `Next.js, Landing page`. |
 | `published` | Boolean. | Akses publik hanya untuk `true`. |
 | `is_concept` | Boolean. | Aktifkan untuk karya konsep/non-klien. |
-| `sort_order` | Bilangan bulat 0–100.000; angka kecil tampil lebih dulu di katalog dan karya terkait. | Tidak mengubah Latest Feed. Sisakan jarak, misalnya 10, 20, 30, agar mudah menyisipkan karya di katalog. |
+| `sort_order` | Bilangan bulat 0–100.000; angka kecil tampil lebih dulu di katalog dan karya terkait. | Tidak mengubah Recent Works. Sisakan jarak, misalnya 10, 20, 30, agar mudah menyisipkan karya di katalog. |
 
 ### Tulisan dan tags
 
-Pilih **Artikel** di editor untuk mengisi judul dan isi tulisan. Tulisan yang diterbitkan muncul di Latest Feed sesuai waktu pembuatan, filter Artikel di katalog, serta halaman detail `/proyek/[slug]`. Pisahkan paragraf dengan satu baris kosong. Gambar sampul bisa diunggah seperti proyek biasa; jika memakai placeholder bawaan, detail artikel langsung menampilkan tulisan tanpa sampul kosong. Artikel tidak ditambahkan sebagai layanan di form kontak.
+Pilih **Artikel** di editor untuk mengisi judul dan isi tulisan. Tulisan yang diterbitkan muncul di Recent Works sesuai waktu pembuatan, filter Artikel di katalog, serta halaman detail `/proyek/[slug]`. Pisahkan paragraf dengan satu baris kosong. Gambar sampul bisa diunggah seperti proyek biasa; jika memakai placeholder bawaan, detail artikel langsung menampilkan tulisan tanpa sampul kosong. Artikel tidak ditambahkan sebagai layanan di form kontak.
 
 Ketik beberapa tags dengan koma, misalnya `Website, Tips, Catatan`. Koma dan spasi tetap terlihat saat mengetik; saat disimpan, spasi tepi, tag kosong, dan duplikat dirapikan. Batas tetap 20 tag, maksimal 32 karakter per tag.
 

@@ -4,7 +4,7 @@ import sharp from "sharp";
 
 const root = path.resolve(fileURLToPath(new URL("..", import.meta.url)));
 const inputPath = path.join(root, "public/images/ferry-landing.webp");
-const outputPath = path.join(root, "public/images/og-portoferry-v2.jpg");
+const outputPath = path.join(root, "public/images/og-portoferry-v3.jpg");
 
 const overlay = Buffer.from(`
   <svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
@@ -22,8 +22,8 @@ const overlay = Buffer.from(`
     <rect width="1200" height="630" fill="url(#leftShade)" />
     <rect width="1200" height="630" fill="url(#bottomShade)" />
     <text x="68" y="78" fill="#d5ecfa" font-family="Arial, Helvetica, sans-serif" font-size="27" font-weight="700">portoferry.</text>
-    <text x="68" y="267" fill="#f5f8fb" font-family="Arial, Helvetica, sans-serif" font-size="62" font-weight="400">Website siap.</text>
-    <text x="68" y="344" fill="#b7dcf3" font-family="Georgia, Times New Roman, serif" font-size="70" font-style="italic" font-weight="700">Bisnis jalan.</text>
+    <text x="68" y="267" fill="#f5f8fb" font-family="Arial, Helvetica, sans-serif" font-size="60" font-weight="400">Website Optimal,</text>
+    <text x="68" y="344" fill="#b7dcf3" font-family="Georgia, Times New Roman, serif" font-size="55" font-style="italic" font-weight="700">Bisnis Maksimal.</text>
     <text x="70" y="405" fill="#c3d4df" font-family="Arial, Helvetica, sans-serif" font-size="20" letter-spacing="0.4">Web Development · IT Consulting · Video Editing</text>
     <text x="70" y="556" fill="#c3d4df" font-family="Arial, Helvetica, sans-serif" font-size="14" letter-spacing="2.5">FERRY KURNIAWAN / PORTOFERRY.MY.ID</text>
   </svg>

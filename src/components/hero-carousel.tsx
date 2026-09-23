@@ -9,8 +9,8 @@ const slides = [
   {
     label: "Perkenalan",
     intro: "HALO, SAYA FERRY KURNIAWAN",
-    title: "Website siap.",
-    accent: "Bisnis jalan.",
+    title: "Website Optimal,",
+    accent: "Bisnis Maksimal.",
     description: "Saya bikin website, bantu urusan IT, dan edit video. Kamu fokus ke bisnis. Bagian digitalnya, kita kerjakan bareng.",
     cta: "Ceritakan idemu",
     href: "#kontak",
@@ -27,8 +27,8 @@ const slides = [
   {
     label: "Video Editing",
     intro: "VIDEO EDITING",
-    title: "Footage ada.",
-    accent: "Saatnya tayang.",
+    title: "Ide Menarik,",
+    accent: "Siap Naikkan Trafik.",
     description: "Reels, video promosi, atau dokumentasi. Saya rapikan potongan, suara, dan warna supaya pesannya sampai tanpa bertele-tele.",
     cta: "Lihat layanan video",
     href: "/layanan/video-editing",
@@ -36,8 +36,8 @@ const slides = [
   {
     label: "IT Consulting",
     intro: "IT CONSULTING",
-    title: "Rapikan IT,",
-    accent: "fokus kerja.",
+    title: "Sistem Andal,",
+    accent: "Kinerja Maksimal.",
     description: "Pilih sistem, rapikan alur kerja, atau cari sumber gangguan. Kita cek kebutuhanmu dulu, lalu tentukan langkah yang masuk akal.",
     cta: "Bahas urusan IT",
     href: "/layanan/it-consulting",
@@ -117,7 +117,7 @@ export function HeroCarousel({ available }: { available: boolean }) {
                 aria-label={`${index + 1} dari ${slides.length}: ${slide.label}`}
               >
                 <div className="hero-intro"><span className="intro-line" />{slide.intro}<span className="wave" aria-hidden="true">✳</span></div>
-                <h1>{slide.title}<br /><em>{slide.accent}</em></h1>
+                <h1>{slide.title}<br /> <em>{slide.accent}</em></h1>
                 <p className="hero-description">{slide.description}</p>
                 <div className="hero-actions">
                   <Link href={slide.href} className="button button-primary">{slide.cta}<ArrowUpRight size={19} /></Link>
@@ -126,7 +126,7 @@ export function HeroCarousel({ available }: { available: boolean }) {
               </div>
             ))}
           </div>
-          <div className="hero-availability"><span className={available ? "status-dot" : "status-dot busy"} /><span>{available ? "Available for freelance projects" : "Let’s talk about your next project"}</span></div>
+          <div className="hero-availability"><span className={available ? "status-dot" : "status-dot busy"} /><span>{available ? "Siap Bekerja • Di Kantor / Hibrid / Jarak Jauh / Freelance" : "Let’s talk about your next project"}</span></div>
           <p id="hero-navigation-help" className="sr-only">Memilih slide menghentikan pergantian otomatis agar kamu bisa membaca.</p>
           <div className="hero-carousel-controls" role="group" aria-label="Navigasi karusel" aria-describedby="hero-navigation-help">
             <div className="hero-slide-picker" role="group" aria-label="Pilih slide">

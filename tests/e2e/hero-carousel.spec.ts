@@ -1,10 +1,10 @@
 import { expect, test, type Page } from "@playwright/test";
 
 const slides = [
-  { label: "Perkenalan", heading: "Website siap.Bisnis jalan.", cta: "Ceritakan idemu", href: "#kontak" },
-  { label: "Web Development", heading: "Dari ide,jadi website.", cta: "Lihat layanan web", href: "/layanan/web-development" },
-  { label: "Video Editing", heading: "Footage ada.Saatnya tayang.", cta: "Lihat layanan video", href: "/layanan/video-editing" },
-  { label: "IT Consulting", heading: "Rapikan IT,fokus kerja.", cta: "Bahas urusan IT", href: "/layanan/it-consulting" },
+  { label: "Perkenalan", heading: "Website Optimal, Bisnis Maksimal.", cta: "Ceritakan idemu", href: "#kontak" },
+  { label: "Web Development", heading: "Dari ide, jadi website.", cta: "Lihat layanan web", href: "/layanan/web-development" },
+  { label: "Video Editing", heading: "Ide Menarik, Siap Naikkan Trafik.", cta: "Lihat layanan video", href: "/layanan/video-editing" },
+  { label: "IT Consulting", heading: "Sistem Andal, Kinerja Maksimal.", cta: "Bahas urusan IT", href: "/layanan/it-consulting" },
 ] as const;
 
 async function loadWithPausedClock(page: Page, reducedMotion: "reduce" | "no-preference" = "no-preference") {
@@ -149,14 +149,23 @@ test("reduced motion keeps the first slide still and all slides fit narrow scree
   await page.clock.fastForward(32_000);
   await expect(carousel).toHaveAttribute("data-active-slide", "1");
 
-  for (const width of [320, 390, 768, 1440]) {
+  await page.evaluate(() => document.fonts.ready);
+  const availabilityText = "Siap Bekerja • Di Kantor / Hibrid / Jarak Jauh / Freelance";
+  await expect(page.locator(".hero-availability")).toHaveText(availabilityText);
+  await expect(page.locator("#kontak .availability")).toHaveText(availabilityText);
+
+  for (const width of [320, 390, 600, 760, 761, 768, 1024, 1440]) {
     await page.setViewportSize({ width, height: 900 });
+    for (const status of [page.locator(".hero-availability"), page.locator("#kontak .availability")]) {
+      expect(await status.evaluate(element => element.scrollWidth <= element.clientWidth)).toBe(true);
+    }
     for (const [index, slide] of slides.entries()) {
       await carousel.getByRole("button", { name: `Slide ${index + 1}: ${slide.label}`, exact: true }).click();
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
       const bounds = await carousel.locator(".hero-carousel-controls").boundingBox();
       expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(width);
       const heading = carousel.getByRole("heading", { level: 1 });
+      await expect(heading).toHaveText(slide.heading);
       expect(await heading.evaluate(element => element.scrollWidth <= element.clientWidth)).toBe(true);
     }
   }

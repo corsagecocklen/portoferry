@@ -99,7 +99,8 @@ dialog::backdrop { background: #03080cd9; backdrop-filter: blur(7px); }
 .hero-navigation-controls > button { display: grid; place-items: center; width: 36px; height: 36px; border: 1px solid #33434e; border-radius: 50%; background: transparent; color: #bdcbd4; }
 .hero-navigation-controls > button:hover { background: #afd9f214; border-color: var(--accent); color: var(--accent); }
 .hero-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 20px 31px; margin-top: auto; padding-top: 30px; }
-.hero-availability { margin-top: 30px; display: flex; align-items: center; gap: 10px; color: #87959f; font-size: 10px; }
+.hero-availability { margin-top: 30px; display: flex; align-items: flex-start; gap: 10px; color: #87959f; font-size: 10px; line-height: 1.7; }
+.hero-availability .status-dot, .availability .status-dot { margin-top: .55em; }
 .hero-visual { position: absolute; inset: 0; pointer-events: none; }
 .hero-portrait { object-fit: cover; object-position: 70% center; }
 .hero-visual::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, var(--bg) 0%, #080c0ff2 15%, #080c0fce 35%, #080c0f26 65%, transparent 80%), linear-gradient(0deg, var(--bg), transparent 25%); }
@@ -220,7 +221,7 @@ dialog::backdrop { background: #03080cd9; backdrop-filter: blur(7px); }
 .small-cross { color: var(--accent); font-size: 16px; margin-right: 7px; vertical-align: -1px; }
 .contact-grid h2 { font-size: 66px; }
 .contact-grid > div > p { color: #9facb5; font-size: 13px; line-height: 1.9; margin-top: 24px; }
-.availability { display: flex; align-items: center; gap: 9px; font-size: 10px; color: #a7b6c1; margin-top: 27px; }
+.availability { display: flex; align-items: flex-start; gap: 9px; font-size: 10px; color: #a7b6c1; margin-top: 27px; line-height: 1.7; }
 .contact-scribble { display: flex; align-items: center; gap: 9px; color: #88a1b0; font-family: var(--font-serif); font-size: 27px; font-style: italic; transform: rotate(-6deg); margin-top: 30px; margin-left: 80px; }
 .contact-scribble > svg { transform: rotate(3deg); }
 .contact-form legend { font-size: 11px; margin-bottom: 12px; }

@@ -35,11 +35,11 @@ function expectVersionedImage(head: string, attribute: "name" | "property", valu
 test("homepage exposes OG and Twitter metadata in the initial crawler head", async ({ request }) => {
   for (const [crawler, userAgent] of Object.entries(crawlers)) {
     const head = await getCrawlerHead(request, "/", userAgent);
-    expect(getMeta(head, "property", "og:title"), crawler).toBe("Ferry Kurniawan — Website siap. Bisnis jalan.");
+    expect(getMeta(head, "property", "og:title"), crawler).toBe("Ferry Kurniawan — Website Optimal, Bisnis Maksimal.");
     expect(getMeta(head, "property", "og:description"), crawler).toContain("Web Development");
     const ogImage = expectVersionedImage(head, "property", "og:image");
     expect(getMeta(head, "name", "twitter:card"), crawler).toBe("summary_large_image");
-    expect(getMeta(head, "name", "twitter:title"), crawler).toBe("Ferry Kurniawan — Website siap. Bisnis jalan.");
+    expect(getMeta(head, "name", "twitter:title"), crawler).toBe("Ferry Kurniawan — Website Optimal, Bisnis Maksimal.");
     expect(getMeta(head, "name", "twitter:description"), crawler).toContain("Web Development");
     expect(getMeta(head, "name", "twitter:image"), crawler).toBe(ogImage);
   }
@@ -68,7 +68,7 @@ test("project pages retain project-specific OG and Twitter metadata", async ({ r
     expect(getMeta(head, "property", "og:description"), crawler).toContain("Eksplorasi website kedai kopi");
     const ogImage = getMeta(head, "property", "og:image");
     expect(ogImage, crawler).toContain("/images/project-kopi.webp");
-    expect(ogImage).not.toContain("og-portoferry-v2.jpg");
+    expect(ogImage).not.toContain(socialImage.url);
     expect(getMeta(head, "name", "twitter:card"), crawler).toBe("summary_large_image");
     expect(getMeta(head, "name", "twitter:title"), crawler).toBe("Ruang Kopi, ruang untuk singgah.");
     expect(getMeta(head, "name", "twitter:description"), crawler).toContain("Eksplorasi website kedai kopi");

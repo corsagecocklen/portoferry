@@ -19,7 +19,8 @@ Asset di bawah adalah file yang saat ini disiapkan untuk Portoferry. File turuna
 | `project-jeda.webp` | 1000×1000 | Kartu konsep “Di antara jeda”. | Artwork ilustratif mandiri dengan foto hutan Unsplash ter-embed; bukan video final/pekerjaan klien. |
 | `project-system.webp` | 1000×1000 | Kartu konsep pemetaan sistem. | Ilustrasi UI/workflow yang dibuat khusus; bukan implementasi bisnis nyata. |
 | `project-ai.webp` | 1000×1000 | Kartu konsep AI workflow. | Ilustrasi UI yang dibuat khusus; bukan produk AI aktif. |
-| `og-portoferry-v2.jpg` | 1200×630 | Gambar share Open Graph/Twitter saat ini. | Dibuat dari hero `ferry-landing.webp` yang disetujui, dengan headline dan copy layanan Portoferry saat ini; regenerasi memakai `node scripts/generate-og-image.mjs`. |
+| `og-portoferry-v3.jpg` | 1200×630 | Gambar share Open Graph/Twitter saat ini. | Dibuat dari hero `ferry-landing.webp` yang disetujui, dengan headline “Website Optimal, Bisnis Maksimal.”; regenerasi memakai `node scripts/generate-og-image.mjs`. |
+| `og-portoferry-v2.jpg` | 1200×630 | Gambar share sebelumnya; tidak lagi direferensikan metadata. | Dipertahankan untuk tautan gambar lama; versi aktif memakai headline terbaru. |
 | `og-portoferry.jpg` | 1200×630 | Gambar share legacy; tidak lagi direferensikan metadata. | Komposisi sebelumnya dipertahankan agar URL versi lama tidak hilang tiba-tiba. |
 | `project-placeholder.svg` | 1000×1000 viewBox | Fallback ketika gambar proyek belum tersedia. | SVG internal sederhana. |
 

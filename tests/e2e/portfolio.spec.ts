@@ -4,7 +4,8 @@ import path from "node:path";
 
 test("landing page prioritizes web, IT, and video with working navigation and FAQ", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Website siap.Bisnis jalan.");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Website Optimal, Bisnis Maksimal.");
+  await expect(page.locator(".feed-label > span").first()).toHaveText("RECENT WORKS");
   await expect(page.locator(".service-row")).toHaveCount(3);
   await expect(page.locator(".home-project-grid .project-card")).toHaveCount(7);
   await page.getByRole("link", { name: "Lihat syaratnya" }).click();
@@ -14,7 +15,7 @@ test("landing page prioritizes web, IT, and video with working navigation and FA
   await expect(page).toHaveURL(/\/proyek$/);
 });
 
-test("Latest Feed includes every published category newest first and opens Graphic Design work", async ({ page }) => {
+test("Recent Works includes every published category newest first and opens Graphic Design work", async ({ page }) => {
   await page.goto("/");
   const feed = page.locator(".home-project-grid");
   await expect(feed.locator(".project-card")).toHaveCount(7);
@@ -50,7 +51,7 @@ test("article category filters to a text detail with article labels and no place
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(title);
   await expect(page.locator(".detail-cover")).toHaveCount(0);
   await expect(page.locator('meta[property="og:type"]')).toHaveAttribute("content", "article");
-  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute("content", /\/images\/og-portoferry-v2\.jpg$/);
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute("content", /\/images\/og-portoferry-v3\.jpg$/);
   const story = page.locator(".detail-story");
   await expect(story.locator(".eyebrow")).toHaveText("ARTIKEL");
   await expect(story.getByRole("heading", { level: 2 })).toHaveText("Catatan & tulisan.");
@@ -58,7 +59,7 @@ test("article category filters to a text detail with article labels and no place
   await expect(story.locator("p").first()).toContainText("konten contoh");
 });
 
-test("Latest Feed never hides a project at mobile, two-column, or desktop widths", async ({ page }) => {
+test("Recent Works never hides a project at mobile, two-column, or desktop widths", async ({ page }) => {
   await page.goto("/");
   const cards = page.locator(".home-project-grid .project-card:visible");
   for (const width of [320, 390, 539, 540, 640, 760, 761, 1024, 1440]) {
